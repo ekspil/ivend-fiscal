@@ -1,6 +1,7 @@
 const logger = require("my-custom-logger")
 
 const ErrorHandler = (error, request, reply) => {
+    console.log(error)
     if (error.message === "Not Found") {
         logger.error("Url not found " + request.req.url)
         return reply.type("application/json").code(404).send({message: "Not found"})

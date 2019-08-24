@@ -5,15 +5,23 @@
 * Send receipts to UMKA
 * Queue all receipts processing them in the background
 * Return all information about receipts
-POST /api/v1/receipt
-
-RequestBody
 
 
+Receipt
 
-ResponseStatus
+email: string
+place: string
+inn: string
+name: string
+price: decimal
+extId: string
+timestamp: string
+payType: string
+sno: string
+status: enum
 
-200 OK
+
+
 
 
 Бек

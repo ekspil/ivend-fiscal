@@ -4,25 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test jest",
     "lint": "eslint ."
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^7.0.0",
     "fastify": "^2.0.0-rc.6",
-    "fastify-formbody": "^3.1.0",
-    "fetch": "^1.1.0",
-    "knex": "^0.16.3",
+    "fastify-healthcheck": "^2.1.0",
+    "knex": "^0.16.5",
     "my-custom-logger": "^1.0.1",
-    "node-cron": "^2.0.3",
     "node-fetch": "^2.3.0",
-    "node-robokassa": "0.0.0",
-    "pg": "^7.8.0",
-    "xml2js": "^0.4.19"
+    "pg": "^7.8.0"
   },
   "devDependencies": {
-    "eslint": "^5.14.1"
+    "eslint": "^5.14.1",
+    "jest": "^24.9.0",
+    "supertest": "^4.0.2"
   }
 }

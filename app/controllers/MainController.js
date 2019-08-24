@@ -1,50 +1,25 @@
-const receiptTemplate = require("../templates/receipt.tpl")
+const ReceiptDTO = require("../models/dto/ReceiptDTO")
 
 class MainController {
 
 
-    constructor({queueStorage}) {
-        this.queueStorage = queueStorage
+    /**
+     * constructor
+     * @param receiptService {ReceiptService}
+     */
+    constructor({receiptService}) {
+        this.receiptService = receiptService
 
-        this.getItemFromQueue = this.getItemFromQueue.bind(this)
-        this.insertJob = this.insertJob.bind(this)
-        this.removeLastJob = this.removeLastJob.bind(this)
+        this.processReceipt = this.processReceipt.bind(this)
     }
-
 
     async processReceipt(request, reply) {
-        const {remotePrinterId} = request.params
+        const receiptDTO = new ReceiptDTO(request.body)
 
-        const job = await this.queueStorage.getFirst(remotePrinterId)
+        const receipt = await this.receiptService.create(receiptDTO)
 
-        if (!job) {
-            return reply.code(404).send()
-        }
-
-        const {replacements} = job
-
-        const html = await receiptTemplate.render(replacements)
-
-        return reply.type("application/json").code(200).send({replacements, html})
+        return new ReceiptDTO(receipt)
     }
-
-    async insertJob(request, reply) {
-        const {remotePrinterId} = request.params
-        const {replacements} = request.body
-
-        await this.queueStorage.insert(remotePrinterId, {replacements})
-
-        return reply.code(200).send()
-    }
-
-    async removeLastJob(request, reply) {
-        const {remotePrinterId} = request.params
-
-        await this.queueStorage.removeFirst(remotePrinterId)
-
-        return reply.code(200).send()
-    }
-
 
 }
 

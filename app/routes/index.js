@@ -2,6 +2,7 @@ const logger = require("my-custom-logger")
 
 function Routes({fastify, mainController}) {
     fastify.setErrorHandler((error, request, reply) => {
+        console.log(error)
         if (error.message === "Not Found") {
             return reply.type("application/json").code(404).send()
         }
@@ -13,9 +14,7 @@ function Routes({fastify, mainController}) {
         reply.type("application/json").code(500).send()
     })
 
-    fastify.post("/api/v1/printer/:remotePrinterId/queue", mainController.insertJob)
-    fastify.get("/api/v1/printer/:remotePrinterId/queue", mainController.getItemFromQueue)
-    fastify.delete("/api/v1/printer/:remotePrinterId/queue", mainController.removeLastJob)
+    fastify.post("/api/v1/receipt", mainController.processReceipt)
 }
 
 module.exports = Routes
