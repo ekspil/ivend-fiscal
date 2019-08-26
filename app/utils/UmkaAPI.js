@@ -1,55 +1,132 @@
 const fetch = require("node-fetch")
-
-/**
- * Get UMKA token for sending authorized requests
- *
- * @param login {string}
- * @param pass {string}
- * @returns {Promise<string>}
- */
-const getToken = async (login, pass) => {
-    const response = await fetch(`https://umka365.ru/kkm-trade/atolpossystem/v4/getToken?login=${login}&pass=${pass}`)
-
-    const json = await response.json()
-
-    return json.data.token
-}
+const UmkaResponse = require("../models/UmkaResponse")
+const UmkaReceiptReport = require("../models/UmkaReceiptReport")
+const logger = require("my-custom-logger")
 
 
-/**
- *
- * @param machineKkt {string}
- * @param saleData {UmkaSaleData}
- * @returns {Promise<boolean|string|*>}
- */
-const registerSale = async (machineKkt, saleData) => {
-    const token = await getToken(process.env.UMKA_LOGIN, process.env.UMKA_PASS)
+class UmkaAPI {
+    /**
+     * Get UMKA token for sending authorized requests
+     *
+     * @returns {Promise<string>}
+     */
+    static async getToken() {
+        const response = await fetch(`https://umka365.ru/kkm-trade/atolpossystem/v4/getToken?login=${process.env.UMKA_LOGIN}&pass=${process.env.UMKA_PASS}`)
 
-    const response = await fetch(`https://umka365.ru/kkm-trade/atolpossystem/v4/${machineKkt || "any"}/sell/`)
+        switch (response.status) {
+            case 200: {
+                const json = await response.json()
 
-    const headers = {
-        "Content-Type": "application/json",
-        token
+                if (json.text) {
+                    throw new Error(`Failed to login: [${json.code}] ${json.error.text}`)
+                }
+
+                return json.token
+            }
+            default:
+                throw new Error("Cannot login, unknown status code: " + response.status)
+        }
     }
 
-    const json = await response.json()
+    /**
+     *
+     * @param machineKkt {string}
+     * @param fiscalRequest {FiscalRequest}
+     * @returns {Promise<UmkaResponse>}
+     */
+    static async registerSale(machineKkt, fiscalRequest) {
+        const token = await this.getToken()
 
-    return json.data.token
-}
-
-
-const getReport = async (login, pass) => {
-    const serverUrl = server || process.env.FISCAL_DEFAULT_SERVER
-    let axConf = {
-        method: "get",
-        baseURL: `https://${serverUrl}/kkm-trade/atolpossystem/v4/any/report/${id}`,
-        params: {
-            "token": token
+        const headers = {
+            "Content-Type": "application/json",
+            token
         }
 
-    }
-    return await axios(axConf)
-        .then((response) => {
-            return response.data
+        const response = await fetch(`https://umka365.ru/kkm-trade/atolpossystem/v4/${machineKkt || "any"}/sell/`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(fiscalRequest)
         })
+
+        switch (response.status) {
+            case 200: {
+                const json = await response.json()
+
+                const umkaResponse = new UmkaResponse(json)
+
+                if (umkaResponse.error) {
+                    logger.error(umkaResponse)
+
+                    throw new Error(`Error while sending sale to UMKA: [${umkaResponse.error.code}] ${umkaResponse.error.text}`)
+                }
+
+                return umkaResponse
+            }
+            default: {
+                const text = await response.text()
+                console.log(text)
+                throw new Error("Unknown status code from server: " + response.status)
+            }
+        }
+    }
+
+    /**
+     * Get report (status)
+     * @param uuid {string}
+     * @returns {Promise<UmkaReceiptReport>}
+     */
+    static async getReport(uuid) {
+        const token = await this.getToken()
+
+        const headers = {
+            "Content-Type": "application/json",
+            token
+        }
+
+        const response = await fetch(`https://umka365.ru/kkm-trade/atolpossystem/v4/any/report/${uuid}`, {
+            method: "GET",
+            headers
+        })
+
+        switch (response.status) {
+            case 200: {
+                const json = await response.json()
+
+                const umkaResponse = new UmkaReceiptReport(json)
+
+                if (umkaResponse.error) {
+                    logger.error(umkaResponse)
+
+                    throw new Error(`Failed to get report with uuid ${uuid}: [${umkaResponse.error.code}] ${umkaResponse.error.text}`)
+                }
+
+                return umkaResponse
+            }
+            default: {
+                throw new Error("Unknown status code from server: " + response.status)
+            }
+        }
+    }
 }
+
+
+module.exports = UmkaAPI
+
+
+/*
+* Авторизация методом GET
+https://umka365.ru/kkm-trade/atolpossystem/v3/getToken?login=[login]&pass=[pass]
+
+Ответ на запрос авторизации
+{
+«code»: 1,
+«text»: null,
+«token»: «8657456346547586»
+}
+Либо
+{
+«code»: 19,
+«text»: «Неверный логин или пароль»,
+«token»: «»
+}
+* */

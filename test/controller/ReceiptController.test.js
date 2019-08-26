@@ -5,6 +5,7 @@ const App = require("../../app/app")
 const ReceiptDTO = require("../../app/models/dto/ReceiptDTO")
 const SNO = require("../../app/enums/SNO")
 const PaymentType = require("../../app/enums/PaymentType")
+const ReceiptStatus = require("../../app/enums/ReceiptStatus")
 
 let fastify
 
@@ -19,7 +20,7 @@ afterAll(async () => {
 
 describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
 
-    test("Should create Receipt", async () => {
+    test("Should create Receipt without kkt", async () => {
         const receiptDTO = new ReceiptDTO(
             {
                 email: "test@test.ru",
@@ -44,8 +45,14 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
         expect(body.email).toBe(receiptDTO.email)
         expect(body.place).toBe(receiptDTO.place)
         expect(body.inn).toBe(receiptDTO.inn)
-        expect(body.email).toBe(receiptDTO.email)
-        expect(body.email).toBe(receiptDTO.email)
+        expect(body.itemName).toBe(receiptDTO.itemName)
+        expect(body.itemPrice).toBe(receiptDTO.itemPrice)
+        expect(body.paymentType).toBe(PaymentType.CASHLESS)
+        expect(body.sno).toBe(SNO.envd)
+        expect(body.status).toBe(ReceiptStatus.PENDING)
+        expect(body.kktRegNumber).toBeNull()
+        expect(body.fiscalData).toBeNull()
     })
+
 
 })

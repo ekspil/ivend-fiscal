@@ -10,17 +10,31 @@ class ReceiptService {
         this.receiptDAO = receiptDAO
 
         this.create = this.create.bind(this)
+        this.getFirstPending = this.getFirstPending.bind(this)
+        this.setStatus = this.setStatus.bind(this)
     }
 
     /**
      *
-     * @param receiptDto {ReceiptDTO}
+     * @param receipt {Receipt}
      * @returns {Promise<Receipt>}
      */
-    async create(receiptDto) {
+    async create(receipt) {
         // todo Validate
 
-        return await this.receiptDAO.create(receiptDto)
+        return await this.receiptDAO.create(receipt)
+    }
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async getFirstPending() {
+        return await this.receiptDAO.getFirstPending()
+    }
+
+    async setStatus(receiptId, status, trx) {
+        return await this.receiptDAO.setStatus(receiptId, status, trx)
     }
 
 }

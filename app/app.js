@@ -2,8 +2,12 @@ const fastify = require("fastify")({})
 const logger = require("my-custom-logger")
 const ReceiptController = require("./controllers/ReceiptController")
 const ReceiptService = require("./service/ReceiptService")
+const FiscalService = require("./service/FiscalService")
 const ReceiptDAO = require("./daos/ReceiptDAO")
+const FiscalDataDAO = require("./daos/FiscalDataDAO")
 const Routes = require("./routes")
+const FiscalizationWorker = require("./workers/FiscalizationWorker")
+
 
 const verifyEnvKeys = () => {
     //if (!process.env.REDIS_HOST) {
@@ -11,14 +15,16 @@ const verifyEnvKeys = () => {
     //}
 }
 
-let knex;
+let knex
 
 const buildDependencies = ({knex}) => {
     const receiptDAO = new ReceiptDAO({knex})
+    const fiscalDataDAO = new FiscalDataDAO({knex})
     const receiptService = new ReceiptService({receiptDAO})
+    const fiscalService = new FiscalService({receiptDAO, fiscalDataDAO})
     const receiptController = new ReceiptController({receiptService})
 
-    return {receiptController}
+    return {receiptController, receiptService, fiscalService}
 }
 
 const start = async (port) => {
@@ -37,9 +43,15 @@ const start = async (port) => {
 
     await knex.raw("SELECT 1+1")
 
-    const {receiptController} = buildDependencies({knex})
+    const {receiptController, receiptService, fiscalService} = buildDependencies({knex})
 
     Routes({fastify, receiptController})
+
+    const fiscalizationWorker = new FiscalizationWorker({receiptService, fiscalService})
+
+    if (process.env.NODE_ENV !== "test") {
+        fiscalizationWorker.start()
+    }
 
     fastify.register(require("fastify-healthcheck"))
 
@@ -56,7 +68,7 @@ const start = async (port) => {
 const stop = async () => {
     await fastify.close()
     await knex.destroy()
-    console.log("Stopped...")
+    logger.info("Stopped...")
 }
 
 module.exports = {

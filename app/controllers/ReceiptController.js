@@ -13,7 +13,7 @@ class ReceiptController {
         this.createReceipt = this.createReceipt.bind(this)
     }
 
-    async createReceipt(request, reply) {
+    async createReceipt(request) {
         const receiptDTO = new ReceiptDTO(request.body)
 
         const receipt = await this.receiptService.create(receiptDTO)
