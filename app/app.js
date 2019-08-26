@@ -1,6 +1,6 @@
 const fastify = require("fastify")({})
 const logger = require("my-custom-logger")
-const MainController = require("./controllers/MainController")
+const ReceiptController = require("./controllers/ReceiptController")
 const ReceiptService = require("./service/ReceiptService")
 const ReceiptDAO = require("./daos/ReceiptDAO")
 const Routes = require("./routes")
@@ -11,18 +11,20 @@ const verifyEnvKeys = () => {
     //}
 }
 
+let knex;
+
 const buildDependencies = ({knex}) => {
     const receiptDAO = new ReceiptDAO({knex})
     const receiptService = new ReceiptService({receiptDAO})
-    const mainController = new MainController({receiptService})
+    const receiptController = new ReceiptController({receiptService})
 
-    return {mainController}
+    return {receiptController}
 }
 
 const start = async (port) => {
     verifyEnvKeys()
 
-    const knex = require("knex")({
+    knex = require("knex")({
         client: "pg",
         connection: {
             host: process.env.POSTGRES_HOST,
@@ -35,9 +37,9 @@ const start = async (port) => {
 
     await knex.raw("SELECT 1+1")
 
-    const {mainController} = buildDependencies({knex})
+    const {receiptController} = buildDependencies({knex})
 
-    Routes({fastify, mainController})
+    Routes({fastify, receiptController})
 
     fastify.register(require("fastify-healthcheck"))
 
@@ -53,6 +55,8 @@ const start = async (port) => {
 
 const stop = async () => {
     await fastify.close()
+    await knex.destroy()
+    console.log("Stopped...")
 }
 
 module.exports = {

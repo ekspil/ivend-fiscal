@@ -1,6 +1,6 @@
 const ReceiptDTO = require("../models/dto/ReceiptDTO")
 
-class MainController {
+class ReceiptController {
 
 
     /**
@@ -10,10 +10,10 @@ class MainController {
     constructor({receiptService}) {
         this.receiptService = receiptService
 
-        this.processReceipt = this.processReceipt.bind(this)
+        this.createReceipt = this.createReceipt.bind(this)
     }
 
-    async processReceipt(request, reply) {
+    async createReceipt(request, reply) {
         const receiptDTO = new ReceiptDTO(request.body)
 
         const receipt = await this.receiptService.create(receiptDTO)
@@ -23,4 +23,4 @@ class MainController {
 
 }
 
-module.exports = MainController
+module.exports = ReceiptController

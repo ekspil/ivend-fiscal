@@ -18,13 +18,10 @@ class FiscalService {
 
     /**
      *
-     * @param receiptDto {ReceiptDTO}
+     * @param fiscalRequest {FiscalRequest}
      * @returns {Promise< Receipt>}
      */
-    async sendReceipt(receiptDto) {
-        // todo Validate
-
-        return await this.receiptDAO.create(receiptDto)
+    async sendReceipt(fiscalRequest) {
     }
 
     /**

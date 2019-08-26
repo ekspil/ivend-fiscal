@@ -1,4 +1,5 @@
-const Receipt = require("../models/Receipt")
+const Receipt = require("../models/domain/Receipt")
+const ReceiptStatus = require("../enums/ReceiptStatus")
 
 class ReceiptDAO {
 
@@ -8,21 +9,27 @@ class ReceiptDAO {
 
     /**
      *
-     * @param receipt
+     * @param receipt {ReceiptDTO}
      * @returns {Promise<Receipt>}
      */
     async create(receipt) {
-        const {name, price} = receipt
+        const {email, sno, inn, place, itemName, itemPrice, paymentType, fiscalData, status, createdAt} = receipt
 
         const [createdReceipt]  = await this.knex("receipts")
             .returning("*")
             .insert({
-                name,
-                price,
-                created_at: new Date(),
+                email,
+                sno,
+                inn,
+                place,
+                item_name: itemName,
+                item_price: itemPrice,
+                payment_type: paymentType,
+                status: ReceiptStatus.PENDING,
+                created_at: new Date()
             })
 
-        return new Receipt(createdReceipt)
+        return new Receipt({...createdReceipt, createdAt: createdReceipt.created_at})
     }
 }
 

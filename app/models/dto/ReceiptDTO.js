@@ -1,17 +1,17 @@
 class ReceiptDTO {
 
-    constructor(raw = {}) {
-        const {email, place, inn, name, price, extId, timestamp, payType, sno} = raw
-
+    constructor({id, email, sno, inn, place, itemName, itemPrice, paymentType, fiscalData, status, createdAt}) {
+        this.id = id
         this.email = email
-        this.place = place
-        this.inn = inn
-        this.name = name
-        this.price = price
-        this.extId = extId
-        this.timestamp = timestamp
-        this.payType = payType
         this.sno = sno
+        this.inn = inn
+        this.place = place
+        this.itemName = itemName
+        this.itemPrice = itemPrice
+        this.paymentType = paymentType
+        this.fiscalData = fiscalData
+        this.status = status
+        this.createdAt = createdAt
     }
 
 }

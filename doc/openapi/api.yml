@@ -1,95 +1,85 @@
-swagger: "2.0"
+openapi: "3.0.0"
 info:
-  title: "iVend Fiscalization Service API"
-  description: "Aggregation API for aggregation data from the controllers. Receives telemetry from the vending controllers"
-  version: "1.0.1"
-  contact:
-    email: "pshenmic@gmail.com"
-host: "aggregate.p-factory.ru"
-basePath: "/api/v1"
-schemes:
-  - "https"
-tags:
-- name: "aggregate"
-  description: "Aggregation API for aggregation data from the controllers"
+  version: 1.0.0
+  title: iVend Fiscalization Service API
+  description: Api for creating, processing, storing receipts
+  license:
+    name: MIT
+servers:
+  - url: http://petstore.swagger.io/v1
 paths:
   /receipt:
     post:
-      #tags:
-      #- "aggregate"
-      summary: "Handle incoming receipt"
+      summary: Handle incoming receipt
+      operationId: createReceipt
       description: "Creates receipt in the system, asynchronously trying to fiscal it"
-      operationId: "createReceipt"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "RegisterControllerRequest"
-        required: true
-        schema:
-          $ref: "#/definitions/ReceiptDTO"
-      responses:
-        200:
-          description: "Successfully registered receipt in the system"
+      content:
+        'application/json':
           schema:
-            $ref: "#/definitions/ReceiptDTO"
-        400:
-          description: &invalid_request_body "Bad request, request body is not valid"
-        404:
-          description: "Such UID not found"
-        500:
-          description: &internal_server_error "Internal server error"
-      x-code-samples:
-        - lang: 'cURL'
-          source: |
-            curl \
-            -X POST \
-            -H "Content-Type: application/json" \
-            -d '{"UID": "MY_CONTROLLER_UID"}' \
-            -i \
-            https://aggregation.p-factory.ru/api/v1/register/controller
-definitions:
-  PaymentType:
-    type: "string"
-    description: "Payment type. Either CASH or CASHLESS"
-    enum: &payment_type
-    - "CASH"
-    - "CASHLESS"
-  ReceiptRequest:
-    type: "object"
-    properties:
-      email:
-        type: "string"
-        description: "email"
-      sno:
-        type: "string"
-        description: "Система налогооблажения"
-        enum:
-        - "osn"
-        - "usn_income"
-        - "usn_income_outcome"
-        - "envd"
-        - "esn"
-        - "patent"
-      inn:
-        type: "string"
-        description: "ИНН, 12 символов"
-      place:
-        type: "string"
-        description: "Место расчетов"
-      itemName:
-        type: "string"
-        description: "Имя товара"
-      itemPrice:
-        type: "string"
-        description: "Цена товара"
-      timestamp:
-        type: "string"
-        description: "Milliseconds since 1970, UTC timezone"
-      paymentType:
-        type: "string"
-        description: "Тип платежа. Может быть CASH или CASHLESS"
-        enum: *payment_type
+            $ref: '#/components/schemas/ReceiptDTO'
+      tags:
+        - receipts
+      responses:
+        '200':
+          description: Null response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ReceiptDTO'
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    ReceiptDTO:
+      type: object
+      required:
+        - email
+        - sno
+        - inn
+        - place
+        - itemName
+        - itemPrice
+        - paymentType
+        - status
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: "string"
+          description: "email"
+        sno:
+          type: "string"
+          description: "Система налогооблажения"
+          enum:
+          - "osn"
+          - "usn_income"
+          - "usn_income_outcome"
+          - "envd"
+          - "esn"
+          - "patent"
+        inn:
+          type: "string"
+          description: "ИНН, 12 символов"
+        place:
+          type: "string"
+          description: "Место расчетов"
+        itemName:
+          type: "string"
+          description: "Имя товара"
+        itemPrice:
+          type: "string"
+          description: "Цена товара"
+        paymentType:
+          $ref: '#/Definitions/PaymentType'
+        status:
+          type: "string"
+          description: "Цена товара"
+          enum: &receipt_status
+          - "PENDING"
+          - "SUCCESS"
+          - "ERROR"
+        createdAt:
+          type: "string"
+          description: "Milliseconds since UTC"

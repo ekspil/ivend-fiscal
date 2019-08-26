@@ -18,8 +18,7 @@ class ReceiptService {
      * @returns {Promise<Receipt>}
      */
     async create(receiptDto) {
-        // todo Valida
-        // te
+        // todo Validate
 
         return await this.receiptDAO.create(receiptDto)
     }
