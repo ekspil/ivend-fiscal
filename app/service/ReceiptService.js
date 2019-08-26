@@ -1,5 +1,3 @@
-const logger = require("my-custom-logger")
-
 class ReceiptService {
 
     /**

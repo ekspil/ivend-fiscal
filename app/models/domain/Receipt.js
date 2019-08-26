@@ -1,6 +1,6 @@
 class Receipt {
 
-    constructor({id, email, sno, inn, place, itemName, item_name, itemPrice, item_price, paymentType, payment_type, status, fiscalData, createdAt, created_at, extId, ext_id, kktRegNumber, kkt_reg_number}) {
+    constructor({id, email, sno, inn, place, itemName, item_name, itemPrice, item_price, paymentType, payment_type, status, fiscalData, createdAt, created_at, kktRegNumber, kkt_reg_number}) {
         this.id = id
         this.email = email
         this.sno = sno

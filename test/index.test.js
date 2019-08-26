@@ -1,6 +1,5 @@
 require("dotenv").config()
 
-const request = require("supertest")
 const App = require("../app/app")
 
 let fastify

@@ -64,7 +64,7 @@ class UmkaAPI {
             }
             default: {
                 const text = await response.text()
-                console.log(text)
+                logger.error(text)
                 throw new Error("Unknown status code from server: " + response.status)
             }
         }

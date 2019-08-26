@@ -1,6 +1,3 @@
-const getDateFromTimestamp = (dateStr) => {
-
-}
 
 class UmkaErrorDetails {
     constructor({code, error, text}) {
