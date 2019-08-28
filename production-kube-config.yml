@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: billing
+  name: fiscal
   namespace: production
   labels:
-    app: billing
+    app: fiscal
 spec:
   replicas: 1
   strategy:
@@ -14,16 +14,16 @@ spec:
       maxSurge: 50%
   selector:
     matchLabels:
-      app: billing
+      app: fiscal
   template:
     metadata:
       namespace: production
       labels:
-        app: billing
+        app: fiscal
     spec:
       containers:
-      - name: billing
-        image: registry.gitlab.com/pshenmic/ivend/billing:1.0.7
+      - name: fiscal
+        image: registry.gitlab.com/pshenmic/ivend/fiscal:1.0.0
         imagePullPolicy: Always
         ports:
           - containerPort: 3500
@@ -37,6 +37,6 @@ spec:
           failureThreshold: 3
         envFrom:
           - configMapRef:
-              name: billing-config
+              name: fiscal-config
       imagePullSecrets:
       - name: gitlabregistrycred
