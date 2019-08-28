@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /app
+cd /src
 
 npm run migrate
 if [ "$?" -ne "0" ]; then
