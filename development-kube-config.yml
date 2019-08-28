@@ -26,11 +26,11 @@ spec:
         image: registry.gitlab.com/pshenmic/ivend/fiscal:$CIRCLE_SHA1
         imagePullPolicy: Always
         ports:
-          - containerPort: 3500
+          - containerPort: 5500
         readinessProbe:
           httpGet:
             path: /api/v1/status
-            port: 3500
+            port: 5500
           initialDelaySeconds: 30
           periodSeconds: 5
           successThreshold: 1
