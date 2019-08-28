@@ -1,7 +1,8 @@
 FROM node:12
 RUN mkdir -p /src/app
+RUN mkdir -p /src/migrations
 COPY app /src/app
-COPY migrations /src
+COPY migrations /src/migrations
 COPY .env /src
 COPY index.js /src
 COPY knexfile.js /src
