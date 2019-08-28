@@ -1,6 +1,6 @@
 {
-  "name": "ivend-billing",
-  "version": "1.0.7",
+  "name": "fiscal",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,6 @@
   },
   "devDependencies": {
     "eslint": "^5.14.1",
-    "jest": "^24.9.0",
-    "supertest": "^4.0.2"
+    "jest": "^24.9.0"
   }
 }
