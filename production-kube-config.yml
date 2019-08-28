@@ -29,7 +29,7 @@ spec:
           - containerPort: 5500
         readinessProbe:
           httpGet:
-            path: /api/v1/status
+            path: /health
             port: 5500
           initialDelaySeconds: 30
           periodSeconds: 5
