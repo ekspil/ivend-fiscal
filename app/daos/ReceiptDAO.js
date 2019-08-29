@@ -66,12 +66,12 @@ class ReceiptDAO {
      *
      * @returns {Promise<Receipt>}
      */
-    async getFirstPending(trx) {
-        const [receipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
+    async getFirstPending() {
+        const [receipt] = await (DBUtils.getKnex(this.knex, "receipts")
             .where({status: ReceiptStatus.PENDING})
             .orderBy("id", "ASC")
             .select("*")
-            .limit(1)
+            .limit(1))
 
         if (!receipt) {
             return null
@@ -90,7 +90,6 @@ class ReceiptDAO {
             .update({
                 fiscal_data_id: fiscalDataId
             })
-            .transacting(trx)
             .returning("*")
 
         if (!receipt) {
@@ -108,7 +107,6 @@ class ReceiptDAO {
      * @returns {Promise<*>}
      */
     async setStatus(receiptId, status, trx) {
-
         const [receipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
             .where({id: receiptId})
             .update({
