@@ -134,6 +134,8 @@ class UmkaAPI {
                 return umkaResponse
             }
             default: {
+                const text = await response.text()
+                logger.error(`umka_api_error_unknown_status_code ${response.status} ${text}`)
                 throw new Error("Unknown status code from server: " + response.status)
             }
         }
