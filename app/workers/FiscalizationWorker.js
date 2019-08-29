@@ -25,7 +25,11 @@ class FiscalizationWorker {
     async processReceipt() {
         const receipt = await this.receiptService.getFirstPending()
 
-        if (!receipt || this.processing[receipt.id]) {
+        if (!receipt) {
+            return
+        }
+
+        if (!this.processing[receipt.id]) {
             return
         }
 
