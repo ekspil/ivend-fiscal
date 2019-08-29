@@ -69,12 +69,14 @@ class FiscalizationWorker {
     async start() {
         this.intervalId = setInterval(this.processReceipt, 3000)
         this.working = true
+        logger.info("UMKA receipt polling worker started")
     }
 
     async stop() {
         clearInterval(this.intervalId)
         this.intervalId = null
         this.working = false
+        logger.info("UMKA receipt polling worker stopped")
     }
 }
 
