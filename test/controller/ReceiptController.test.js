@@ -85,6 +85,9 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
         expect(body.status).toBe(ReceiptStatus.PENDING)
         expect(body.kktRegNumber).toBeNull()
         expect(body.fiscalData).toBeNull()
+        expect(body.id).toBeDefined()
+
+        const receiptId = body.id
 
 
         response = await fastify.inject({
@@ -95,6 +98,7 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
 
         body = JSON.parse(response.body)
 
+        expect(body.id).toBe(receiptId)
         expect(body.email).toBe(receiptDTO.email)
         expect(body.place).toBe(receiptDTO.place)
         expect(body.inn).toBe(receiptDTO.inn)
@@ -105,7 +109,6 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
         expect(body.status).toBe(ReceiptStatus.PENDING)
         expect(body.kktRegNumber).toBeNull()
         expect(body.fiscalData).toBeNull()
-
 
     })
 
