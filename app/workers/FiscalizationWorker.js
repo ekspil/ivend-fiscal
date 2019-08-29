@@ -32,6 +32,8 @@ class FiscalizationWorker {
 
             const extId = `IVEND-receipt-${id}`
 
+            logger.debug(`worker_process_receipt_start #${id} ${extId} ${email} ${inn} ${itemName} ${itemPrice} ${kktRegNumber}`)
+
             const fiscalRequest = new FiscalRequest({
                 external_id: extId,
                 email,
@@ -44,12 +46,13 @@ class FiscalizationWorker {
                 timestamp: createdAt
             })
 
+
             const result = await UmkaAPI.registerSale(kktRegNumber, fiscalRequest)
 
+            logger.debug("worker_process_receipt_umka_replied ${result.uuid}")
             await this.fiscalService.handleFiscalizationResult(receipt, result.uuid)
 
-
-            logger.info("Successfully registered sale")
+            logger.debug("worker_process_receipt_handled")
         } catch (e) {
             if (e.code === "23505") {
                 //race condition
@@ -59,6 +62,7 @@ class FiscalizationWorker {
             //todo test no race condition here
             await this.receiptService.setStatus(receipt.id, ReceiptStatus.ERROR)
             logger.error(e)
+            logger.error(`error_receipt_unknown ${receipt.id}`)
         }
     }
 
