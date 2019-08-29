@@ -9,7 +9,7 @@ const fetchWithTimeout = async (url, options) => {
     return new Promise((resolve, reject) => {
         const timeoutMillis = Number(process.env.UMKA_API_FETCH_TIMEOUT_SECONDS) * 1000
         setTimeout(() => {
-            logger.debug(`umka_api_fetch_url_timeout ${url}`)
+            logger.debug(`umka_api_fetch_url_timeout ${url} ${options.body ? JSON.stringify(options.body): undefined}`)
             reject(new UmkaApiTimeout())
         }, timeoutMillis)
 
@@ -123,7 +123,7 @@ class UmkaAPI {
                     throw new Error(`Failed to get report with uuid ${uuid}: [${umkaResponse.error.code}] ${umkaResponse.error.text}`)
                 }
 
-                logger.debug(`umka_api_successful_report ${uuid} ${umkaResponse}`)
+                logger.debug(`umka_api_successful_report ${uuid} ${JSON.stringify(umkaResponse)}`)
 
                 return umkaResponse
             }
