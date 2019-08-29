@@ -60,7 +60,12 @@ class FiscalizationWorker {
             }
 
             //todo test no race condition here
-            await this.receiptService.setStatus(receipt.id, ReceiptStatus.ERROR)
+            try {
+                await this.receiptService.setStatus(receipt.id, ReceiptStatus.ERROR)
+            } catch (e1) {
+                logger.error(`worker_process_receipt_set_status_failed ${e1}`)
+            }
+
             logger.error(e)
             logger.error(`error_receipt_unknown ${receipt.id}`)
         }
