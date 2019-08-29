@@ -1,7 +1,16 @@
 const fetch = require("node-fetch")
 const UmkaResponse = require("../models/UmkaResponse")
 const UmkaReceiptReport = require("../models/UmkaReceiptReport")
+const UmkaApiTimeout = require("../errors/UmkaApiTimeout")
 const logger = require("my-custom-logger")
+
+const fetchWithTimeout = async (url, options) => {
+    setTimeout(() => {
+        throw new UmkaApiTimeout()
+    }, Number(process.env.UMKA_API_FETCH_TIMEOUT_SECONDS) * 1000)
+
+    return await fetch(url, options)
+}
 
 
 class UmkaAPI {
@@ -11,7 +20,7 @@ class UmkaAPI {
      * @returns {Promise<string>}
      */
     static async getToken() {
-        const response = await fetch(`https://umka365.ru/kkm-trade/atolpossystem/v4/getToken?login=${process.env.UMKA_LOGIN}&pass=${process.env.UMKA_PASS}`)
+        const response = await fetchWithTimeout(`https://umka365.ru/kkm-trade/atolpossystem/v4/getToken?login=${process.env.UMKA_LOGIN}&pass=${process.env.UMKA_PASS}`)
 
         switch (response.status) {
             case 200: {
@@ -42,7 +51,7 @@ class UmkaAPI {
             token
         }
 
-        const response = await fetch(`https://umka365.ru/kkm-trade/atolpossystem/v4/${machineKkt || "any"}/sell/`, {
+        const response = await fetchWithTimeout(`https://umka365.ru/kkm-trade/atolpossystem/v4/${machineKkt || "any"}/sell/`, {
             method: "POST",
             headers,
             body: JSON.stringify(fiscalRequest)
@@ -83,7 +92,7 @@ class UmkaAPI {
             token
         }
 
-        const response = await fetch(`https://umka365.ru/kkm-trade/atolpossystem/v4/any/report/${uuid}`, {
+        const response = await fetchWithTimeout(`https://umka365.ru/kkm-trade/atolpossystem/v4/any/report/${uuid}`, {
             method: "GET",
             headers
         })
@@ -111,22 +120,3 @@ class UmkaAPI {
 
 
 module.exports = UmkaAPI
-
-
-/*
-* Авторизация методом GET
-https://umka365.ru/kkm-trade/atolpossystem/v3/getToken?login=[login]&pass=[pass]
-
-Ответ на запрос авторизации
-{
-«code»: 1,
-«text»: null,
-«token»: «8657456346547586»
-}
-Либо
-{
-«code»: 19,
-«text»: «Неверный логин или пароль»,
-«token»: «»
-}
-* */
