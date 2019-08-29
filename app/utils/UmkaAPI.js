@@ -5,9 +5,13 @@ const UmkaApiTimeout = require("../errors/UmkaApiTimeout")
 const logger = require("my-custom-logger")
 
 const fetchWithTimeout = async (url, options) => {
+    const timeoutMillis = Number(process.env.UMKA_API_FETCH_TIMEOUT_SECONDS) * 1000
+    const shouldTimeoutAt = new Date() + timeoutMillis
+
+    logger.debug(`umka_api_fetch_timeout ${url} ${shouldTimeoutAt}`)
     setTimeout(() => {
         throw new UmkaApiTimeout()
-    }, Number(process.env.UMKA_API_FETCH_TIMEOUT_SECONDS) * 1000)
+    }, timeoutMillis)
 
     return await fetch(url, options)
 }
