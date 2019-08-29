@@ -18,15 +18,19 @@ class FiscalizationWorker {
         this.processReceipt = this.processReceipt.bind(this)
         this.start = this.start.bind(this)
         this.stop = this.stop.bind(this)
+
+        this.processing = {}
     }
 
     async processReceipt() {
         const receipt = await this.receiptService.getFirstPending()
 
+        if (!receipt || this.processing[receipt.id]) {
+            return
+        }
+
         try {
-            if (!receipt) {
-                return
-            }
+            this.processing[receipt.id] = true
 
             const {id, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber} = receipt
 
@@ -66,7 +70,9 @@ class FiscalizationWorker {
                 logger.error(`worker_process_receipt_set_status_failed ${e1}`)
             }
 
-            logger.error(`error_receipt_unknown ${receipt.id} `  + e)
+            logger.error(`error_receipt_unknown ${receipt.id} ` + e)
+        } finally {
+            this.processing[receipt.id] = undefined
         }
     }
 
