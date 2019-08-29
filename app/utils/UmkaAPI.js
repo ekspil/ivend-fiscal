@@ -9,11 +9,11 @@ const fetchWithTimeout = async (url, options) => {
     return new Promise((resolve, reject) => {
         const timeoutMillis = Number(process.env.UMKA_API_FETCH_TIMEOUT_SECONDS) * 1000
         setTimeout(() => {
-            logger.debug(`umka_api_fetch_url_timeout ${url} ${options.body ? JSON.stringify(options.body): undefined}`)
+            logger.debug(`umka_api_fetch_url_timeout [${options.method || "GET"}] ${url} ${options.body ? JSON.stringify(options.body): undefined}`)
             reject(new UmkaApiTimeout())
         }, timeoutMillis)
 
-        logger.debug(`umka_api_fetch_url ${url}`)
+        logger.debug(`umka_api_fetch_url [${options.method || "GET"}] ${url} ${options.body ? JSON.stringify(options.body): undefined}`)
 
         fetch(url, options)
             .then(resp => resolve(resp))
