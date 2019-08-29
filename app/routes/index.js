@@ -4,6 +4,7 @@ function Routes({fastify, receiptController}) {
     fastify.setErrorHandler(ErrorHandler)
 
     fastify.post("/api/v1/receipt", receiptController.createReceipt)
+    fastify.get("/api/v1/receipt/:id", receiptController.getReceiptById)
 }
 
 module.exports = Routes

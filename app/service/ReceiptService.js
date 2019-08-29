@@ -27,6 +27,14 @@ class ReceiptService {
      *
      * @returns {Promise<Receipt>}
      */
+    async getById(receiptId) {
+        return await this.receiptDAO.getById(receiptId)
+    }
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
     async getFirstPending() {
         return await this.receiptDAO.getFirstPending()
     }

@@ -1,10 +1,9 @@
 class FiscalDataDTO {
     /* eslint-disable indent */
     constructor({
-                    id, extId, totalAmount, fnsSite, fnNumber, shiftNumber, receiptDatetime, fiscalReceiptNumber,
+                    extId, totalAmount, fnsSite, fnNumber, shiftNumber, receiptDatetime, fiscalReceiptNumber,
                     fiscalDocumentNumber, ecrRegistrationNumber, fiscalDocumentAttribute, extTimestamp, createdAt
                 }) {
-        this.id = id
         this.extId = extId
         this.totalAmount = totalAmount
         this.fnsSite = fnsSite // Адрес сайта ФНС

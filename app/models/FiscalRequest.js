@@ -1,4 +1,9 @@
 const FiscalRequest = function ({external_id, email, sno, inn, place, itemName, itemPrice, paymentType, timestamp}) {
+    const paymentTypeMap = {
+        CASH: 0,
+        CASHLESS:1
+    }
+
     return {
         external_id,
         receipt: {
@@ -28,7 +33,7 @@ const FiscalRequest = function ({external_id, email, sno, inn, place, itemName, 
             ],
             payments: [
                 {
-                    type: paymentType ? "0" : "10",//todo fix
+                    type: paymentTypeMap[paymentType],
                     sum: itemPrice
                 }
             ],

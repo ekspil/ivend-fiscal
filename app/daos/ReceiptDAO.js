@@ -1,4 +1,5 @@
 const Receipt = require("../models/domain/Receipt")
+const FiscalData = require("../models/domain/FiscalData")
 const ReceiptStatus = require("../enums/ReceiptStatus")
 
 
@@ -46,13 +47,18 @@ class ReceiptDAO {
      * @returns {Promise<Receipt>}
      */
     async getById(receiptId) {
-        const [receipt] = await this.knex("receipts").where({id: receiptId})
+        const [receipt] = await this.knex("receipts")
+            .where({"receipts.id": receiptId})
+            .leftJoin("fiscal_datas", "receipts.fiscal_data_id", "fiscal_datas.id")
+            .select("*")
 
         if (!receipt) {
             return null
         }
 
-        return new Receipt(receipt)
+        const fiscalData = new FiscalData(receipt)
+
+        return new Receipt({...receipt, fiscalData})
     }
 
     /**
