@@ -51,15 +51,38 @@ class ReceiptDAO {
         const [receipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
             .where({"receipts.id": receiptId})
             .leftJoin("fiscal_datas", "receipts.fiscal_data_id", "fiscal_datas.id")
-            .select("*")
+            .select(`receipts.id as receipt_id`)
+            .select(`fiscal_datas.id as fiscal_data_id`)
+            .select(`ext_id`)
+            .select(`total_amount`)
+            .select(`fns_site`)
+            .select(`fn_number`)
+            .select(`shift_number`)
+            .select(`receipt_date_time`)
+            .select(`fiscal_receipt_number`)
+            .select(`fiscal_document_number`)
+            .select(`ecr_registration_number`)
+            .select(`fiscal_document_attribute`)
+            .select(`ext_timestamp`)
+            .select(`fiscal_datas.created_at as f_created_at`)
+            .select(`email`)
+            .select(`sno`)
+            .select(`inn`)
+            .select(`place`)
+            .select(`item_name`)
+            .select(`item_price`)
+            .select(`payment_type`)
+            .select(`kkt_reg_number`)
+            .select(`status`)
+            .select(`receipts.created_at as r_created_at`)
 
         if (!receipt) {
             return null
         }
 
-        const fiscalData = new FiscalData(receipt)
+        const fiscalData = new FiscalData({...receipt, id: receipt.fiscal_data_id, createdAt: receipt.f_create_at})
 
-        return new Receipt({...receipt, fiscalData: (fiscalData && fiscalData.id) ? fiscalData : null})
+        return new Receipt({...receipt, createdAt: receipt.r_created_at, id: receipt.receipt_id, fiscalData: (fiscalData && fiscalData.id) ? fiscalData : null})
     }
 
     /**
