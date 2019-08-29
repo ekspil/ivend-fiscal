@@ -59,7 +59,7 @@ class ReceiptDAO {
 
         const fiscalData = new FiscalData(receipt)
 
-        return new Receipt({...receipt, fiscalData})
+        return new Receipt({...receipt, fiscalData: (fiscalData && fiscalData.id) ? fiscalData : null})
     }
 
     /**
