@@ -32,7 +32,7 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
             })
 
         const response = await fastify.inject({
-            method: "POST", url: "/api/v1/receipt", payload: receiptDTO, headers: {
+            method: "POST", url: "/api/v1/fiscal/receipt", payload: receiptDTO, headers: {
                 "Content-Type": "application/json"
             }
         })
