@@ -53,5 +53,61 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
         expect(body.fiscalData).toBeNull()
     })
 
+    test("Should get receipt by id", async () => {
+        const receiptDTO = new ReceiptDTO(
+            {
+                email: "test@test.ru",
+                place: "Красная площадь",
+                inn: "7727529784",
+                itemName: "Услуги мойки",
+                itemPrice: "100.00",
+                paymentType: PaymentType.CASHLESS,
+                sno: SNO.envd
+            })
+
+        let response = await fastify.inject({
+            method: "POST", url: "/api/v1/fiscal/receipt", payload: receiptDTO, headers: {
+                "Content-Type": "application/json"
+            }
+        })
+
+        expect(response.statusCode).toEqual(200)
+
+        let body = JSON.parse(response.body)
+
+        expect(body.email).toBe(receiptDTO.email)
+        expect(body.place).toBe(receiptDTO.place)
+        expect(body.inn).toBe(receiptDTO.inn)
+        expect(body.itemName).toBe(receiptDTO.itemName)
+        expect(body.itemPrice).toBe(receiptDTO.itemPrice)
+        expect(body.paymentType).toBe(PaymentType.CASHLESS)
+        expect(body.sno).toBe(SNO.envd)
+        expect(body.status).toBe(ReceiptStatus.PENDING)
+        expect(body.kktRegNumber).toBeNull()
+        expect(body.fiscalData).toBeNull()
+
+
+        response = await fastify.inject({
+            method: "GET", url: "/api/v1/fiscal/receipt/" + body.id,
+        })
+
+        expect(response.statusCode).toEqual(200)
+
+        body = JSON.parse(response.body)
+
+        expect(body.email).toBe(receiptDTO.email)
+        expect(body.place).toBe(receiptDTO.place)
+        expect(body.inn).toBe(receiptDTO.inn)
+        expect(body.itemName).toBe(receiptDTO.itemName)
+        expect(body.itemPrice).toBe(receiptDTO.itemPrice)
+        expect(body.paymentType).toBe(PaymentType.CASHLESS)
+        expect(body.sno).toBe(SNO.envd)
+        expect(body.status).toBe(ReceiptStatus.PENDING)
+        expect(body.kktRegNumber).toBeNull()
+        expect(body.fiscalData).toBeNull()
+
+
+    })
+
 
 })
