@@ -5,15 +5,21 @@ const UmkaApiTimeout = require("../errors/UmkaApiTimeout")
 const logger = require("my-custom-logger")
 
 const fetchWithTimeout = async (url, options) => {
+    if(!options) {
+        options = {}
+    }
 
     return new Promise((resolve, reject) => {
         const timeoutMillis = Number(process.env.UMKA_API_FETCH_TIMEOUT_SECONDS) * 1000
+        const method = options.method || "GET"
+        const body = options.body
+
         setTimeout(() => {
-            logger.debug(`umka_api_fetch_url_timeout [${options.method || "GET"}] ${url} ${options.body ? JSON.stringify(options.body): undefined}`)
+            logger.debug(`umka_api_fetch_url_timeout [${method}] ${url} ${body || ""}`)
             reject(new UmkaApiTimeout())
         }, timeoutMillis)
 
-        logger.debug(`umka_api_fetch_url [${options.method || "GET"}] ${url} ${options.body ? JSON.stringify(options.body): undefined}`)
+        logger.debug(`umka_api_fetch_url [${method}] ${url} ${body || ""}`)
 
         fetch(url, options)
             .then(resp => resolve(resp))
