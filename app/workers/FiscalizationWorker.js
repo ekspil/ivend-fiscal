@@ -29,7 +29,7 @@ class FiscalizationWorker {
             return
         }
 
-        if (!this.processing[receipt.id]) {
+        if (this.processing[receipt.id]) {
             return
         }
 
@@ -57,7 +57,7 @@ class FiscalizationWorker {
 
             const result = await UmkaAPI.registerSale(kktRegNumber, fiscalRequest)
 
-            logger.debug("worker_process_receipt_umka_replied ${result.uuid}")
+            logger.debug(`worker_process_receipt_umka_replied ${result.uuid}`)
             await this.fiscalService.handleFiscalizationResult(receipt, result.uuid)
 
             logger.debug("worker_process_receipt_handled")
