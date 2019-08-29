@@ -35,8 +35,6 @@ class ReceiptController {
             throw new ReceiptNotFoundError(id)
         }
 
-        logger.debug(`get_receipt_by_id ${id}`)
-
         return new ReceiptDTO(receipt)
     }
 
