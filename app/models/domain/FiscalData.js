@@ -1,7 +1,7 @@
 class FiscalData {
     /* eslint-disable indent */
     constructor({
-                    id, extId, ext_id, totalAmount, total_amount, fnsSite, fns_site, fnNumber, fn_number, shiftNumber, shift_number, receiptDatetime, receipt_datetime, fiscalReceiptNumber, fiscal_receipt_number,
+                    id, extId, ext_id, totalAmount, total_amount, fnsSite, fns_site, fnNumber, fn_number, shiftNumber, shift_number, receiptDatetime, receipt_datetime, receipt_date_time, fiscalReceiptNumber, fiscal_receipt_number,
                     fiscalDocumentNumber, fiscal_document_number, ecrRegistrationNumber, ecr_registration_number, fiscalDocumentAttribute, fiscal_document_attribute, extTimestamp, ext_timestamp, createdAt, created_at
                 }) {
         this.id = id
@@ -10,7 +10,7 @@ class FiscalData {
         this.fnsSite = fnsSite  || fns_site// Адрес сайта ФНС
         this.fnNumber = fnNumber || fn_number// Номер ФН
         this.shiftNumber = shiftNumber || shift_number// Номер смены
-        this.receiptDatetime = receiptDatetime || receipt_datetime// Дата и время документа из ФН
+        this.receiptDatetime = receiptDatetime || receipt_datetime || receipt_date_time// Дата и время документа из ФН
         this.fiscalReceiptNumber = fiscalReceiptNumber || fiscal_receipt_number// Номер чека в смене
         this.fiscalDocumentNumber = fiscalDocumentNumber || fiscal_document_number// Фискальный номер документа
         this.ecrRegistrationNumber = ecrRegistrationNumber || ecr_registration_number// Регистрационный номер ККТ
