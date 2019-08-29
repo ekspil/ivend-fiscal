@@ -12,9 +12,14 @@ const ErrorHandler = (error, request, reply) => {
         return reply.type("application/json").code(404).send({message: "Receipt not found"})
     }
 
-    logger.error(error)
-    logger.error(`RequestBody: ${JSON.stringify(request.body)}`)
-    logger.error(error.stack)
+    const msg = `
+    body: ${JSON.stringify(request.body)}
+    query: ${JSON.stringify(request.query)}
+    params: ${JSON.stringify(request.params)}
+    error: ${error.message || error}
+    stack: ${error.stack}
+    `
+    logger.error(msg)
 
     return reply.type("application/json").code(500).send({message: "Internal Server Error"})
 }

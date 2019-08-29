@@ -1,5 +1,6 @@
 const ReceiptDTO = require("../models/dto/ReceiptDTO")
 const ReceiptNotFoundError = require("../errors/ReceiptNotFoundError")
+const logger = require("my-custom-logger")
 
 class ReceiptController {
 
@@ -20,6 +21,8 @@ class ReceiptController {
 
         const receipt = await this.receiptService.create(receiptDTO)
 
+        logger.debug(`created_receipt ${JSON.stringify(receipt)}`)
+
         return new ReceiptDTO(receipt)
     }
 
@@ -31,6 +34,8 @@ class ReceiptController {
         if (!receipt) {
             throw new ReceiptNotFoundError(id)
         }
+
+        logger.debug(`get_receipt_by_id ${id}`)
 
         return new ReceiptDTO(receipt)
     }
