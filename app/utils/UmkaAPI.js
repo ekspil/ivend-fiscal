@@ -68,9 +68,7 @@ class UmkaAPI {
                 const umkaResponse = new UmkaResponse(json)
 
                 if (umkaResponse.error) {
-                    logger.error(umkaResponse)
-
-                    logger.debug(`umka_api_sale_error [${umkaResponse.error.code}] ${umkaResponse.error.text}`)
+                    logger.error("umka_api_sale_error " + umkaResponse)
 
                     throw new Error(`Error while sending sale to UMKA: [${umkaResponse.error.code}] ${umkaResponse.error.text}`)
                 }
@@ -81,7 +79,7 @@ class UmkaAPI {
             }
             default: {
                 const text = await response.text()
-                logger.error(text)
+                logger.error(`umka_api_error_unknown_status_code ${response.status} ${text}`)
                 throw new Error("Unknown status code from server: " + response.status)
             }
         }
@@ -112,7 +110,7 @@ class UmkaAPI {
                 const umkaResponse = new UmkaReceiptReport(json)
 
                 if (umkaResponse.error) {
-                    logger.error(umkaResponse)
+                    logger.error("umka_api_get_report_failed " + umkaResponse)
 
                     throw new Error(`Failed to get report with uuid ${uuid}: [${umkaResponse.error.code}] ${umkaResponse.error.text}`)
                 }
