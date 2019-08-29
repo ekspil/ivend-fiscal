@@ -1,6 +1,7 @@
 const Receipt = require("../models/domain/Receipt")
 const FiscalData = require("../models/domain/FiscalData")
 const ReceiptStatus = require("../enums/ReceiptStatus")
+const DBUtils = require("../utils/DBUtils")
 
 
 class ReceiptDAO {
@@ -20,10 +21,10 @@ class ReceiptDAO {
      * @param receipt {ReceiptDTO}
      * @returns {Promise<Receipt>}
      */
-    async create(receipt) {
+    async create(receipt, trx) {
         const {email, sno, inn, place, itemName, itemPrice, paymentType, kktRegNumber} = receipt
 
-        const [createdReceipt] = await this.knex("receipts")
+        const [createdReceipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
             .returning("*")
             .insert({
                 email,
@@ -46,8 +47,8 @@ class ReceiptDAO {
      * @param receiptId {number}
      * @returns {Promise<Receipt>}
      */
-    async getById(receiptId) {
-        const [receipt] = await this.knex("receipts")
+    async getById(receiptId, trx) {
+        const [receipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
             .where({"receipts.id": receiptId})
             .leftJoin("fiscal_datas", "receipts.fiscal_data_id", "fiscal_datas.id")
             .select("*")
@@ -65,8 +66,8 @@ class ReceiptDAO {
      *
      * @returns {Promise<Receipt>}
      */
-    async getFirstPending() {
-        const [receipt] = await this.knex("receipts")
+    async getFirstPending(trx) {
+        const [receipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
             .where({status: ReceiptStatus.PENDING})
             .orderBy("id", "ASC")
             .select("*")
@@ -84,7 +85,7 @@ class ReceiptDAO {
      * @returns {Promise<Receipt>}
      */
     async setFiscalDataId(receiptId, fiscalDataId, trx) {
-        const [receipt] = await this.knex("receipts")
+        const [receipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
             .where({id: receiptId})
             .update({
                 fiscal_data_id: fiscalDataId
@@ -107,9 +108,8 @@ class ReceiptDAO {
      * @returns {Promise<*>}
      */
     async setStatus(receiptId, status, trx) {
-        const getKnex = (tableName, trx) => trx ? this.knex(tableName).transacting(trx) : this.knex(tableName)
 
-        const [receipt] = await getKnex("receipts", trx)
+        const [receipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
             .where({id: receiptId})
             .update({
                 status

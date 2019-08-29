@@ -1,4 +1,5 @@
 const FiscalData = require("../models/domain/FiscalData")
+const DBUtils = require("../utils/DBUtils")
 
 class FiscalDataDAO {
 
@@ -19,7 +20,7 @@ class FiscalDataDAO {
             fiscalDocumentNumber, ecrRegistrationNumber, fiscalDocumentAttribute, extTimestamp, createdAt
         } = fiscalData
 
-        const [createdFiscalData] = await this.knex("fiscal_datas")
+        const [createdFiscalData] = await DBUtils.getKnex(this.knex, "fiscal_datas", trx)
             .returning("*")
             .insert({
                 ext_id: extId,
