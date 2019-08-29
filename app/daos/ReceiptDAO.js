@@ -107,12 +107,13 @@ class ReceiptDAO {
      * @returns {Promise<*>}
      */
     async setStatus(receiptId, status, trx) {
-        const [receipt] = await this.knex("receipts")
+        const getKnex = (tableName, trx) => trx ? this.knex(tableName).transacting(trx) : this.knex(tableName)
+
+        const [receipt] = await getKnex("receipts", trx)
             .where({id: receiptId})
             .update({
                 status
             })
-            .transacting(trx)
             .returning("*")
 
         if (!receipt) {
