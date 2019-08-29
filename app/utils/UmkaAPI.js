@@ -123,6 +123,8 @@ class UmkaAPI {
                     throw new Error(`Failed to get report with uuid ${uuid}: [${umkaResponse.error.code}] ${umkaResponse.error.text}`)
                 }
 
+                logger.debug("umka_api_successful_report ${uuid} ${umkaResponse}")
+
                 return umkaResponse
             }
             default: {
