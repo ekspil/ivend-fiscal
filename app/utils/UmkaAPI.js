@@ -6,9 +6,8 @@ const logger = require("my-custom-logger")
 
 const fetchWithTimeout = async (url, options) => {
     const timeoutMillis = Number(process.env.UMKA_API_FETCH_TIMEOUT_SECONDS) * 1000
-    const shouldTimeoutAt = new Date() + timeoutMillis
 
-    logger.debug(`umka_api_fetch_timeout ${url} ${shouldTimeoutAt}`)
+    logger.debug(`umka_api_fetch_url ${url}`)
     setTimeout(() => {
         throw new UmkaApiTimeout()
     }, timeoutMillis)
@@ -31,6 +30,7 @@ class UmkaAPI {
                 const json = await response.json()
 
                 if (json.text) {
+                    logger.debug(`umka_api_error_text [${json.code}] ${json.error.text}`)
                     throw new Error(`Failed to login: [${json.code}] ${json.error.text}`)
                 }
 
@@ -70,8 +70,12 @@ class UmkaAPI {
                 if (umkaResponse.error) {
                     logger.error(umkaResponse)
 
+                    logger.debug(`umka_api_sale_error [${umkaResponse.error.code}] ${umkaResponse.error.text}`)
+
                     throw new Error(`Error while sending sale to UMKA: [${umkaResponse.error.code}] ${umkaResponse.error.text}`)
                 }
+
+                logger.debug(`umka_api_sale_success ${umkaResponse.uuid}`)
 
                 return umkaResponse
             }
