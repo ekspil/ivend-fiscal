@@ -7,3 +7,8 @@
 # 1.0.1 - Release
 
 * Fix receipt timeout handling
+
+# 1.0.2 - Release
+
+* Get random receipt
+* Finally fix timeout handling

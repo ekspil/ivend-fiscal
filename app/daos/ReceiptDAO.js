@@ -12,6 +12,7 @@ class ReceiptDAO {
         this.create = this.create.bind(this)
         this.getById = this.getById.bind(this)
         this.getFirstPending = this.getFirstPending.bind(this)
+        this.getRandomPending = this.getRandomPending.bind(this)
         this.setFiscalDataId = this.setFiscalDataId.bind(this)
         this.setStatus = this.setStatus.bind(this)
     }
@@ -93,6 +94,24 @@ class ReceiptDAO {
         const [receipt] = await (DBUtils.getKnex(this.knex, "receipts")
             .where({status: ReceiptStatus.PENDING})
             .orderBy("id", "ASC")
+            .select("*")
+            .limit(1))
+
+        if (!receipt) {
+            return null
+        }
+
+        return new Receipt(receipt)
+    }
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async getRandomPending() {
+        const [receipt] = await (DBUtils.getKnex(this.knex, "receipts")
+            .where({status: ReceiptStatus.PENDING})
+            .orderByRaw("RANDOM()")
             .select("*")
             .limit(1))
 
