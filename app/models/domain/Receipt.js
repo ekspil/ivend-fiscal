@@ -1,18 +1,18 @@
 class Receipt {
 
-    constructor({id, email, sno, inn, place, itemName, itemPrice, paymentType, status, fiscalData, createdAt, extId}) {
+    constructor({id, email, sno, inn, place, itemName, item_name, itemPrice, item_price, paymentType, payment_type, status, fiscalData, createdAt, created_at, kktRegNumber, kkt_reg_number}) {
         this.id = id
         this.email = email
         this.sno = sno
         this.inn = inn
         this.place = place
-        this.itemName = itemName
-        this.itemPrice = itemPrice
-        this.paymentType = paymentType
-        this.extId = extId // уникальный ID со стороны ivend, уникальный среди всех документов. Всегда можно подать повторно чек с таким же external_id в умку
+        this.itemName = itemName || item_name
+        this.itemPrice = itemPrice || item_price
+        this.paymentType = paymentType || payment_type
+        this.kktRegNumber = kktRegNumber || kkt_reg_number // строка регистрационный номер ККМ (kktRegNumber) с ведущими нулями
         this.fiscalData = fiscalData
         this.status = status
-        this.createdAt = createdAt
+        this.createdAt = createdAt || created_at
     }
 
 }

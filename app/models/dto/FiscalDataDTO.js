@@ -1,6 +1,9 @@
-class ReceiptDTO {
-
-    constructor(raw) {
+class FiscalDataDTO {
+    /* eslint-disable indent */
+    constructor({
+                    extId, totalAmount, fnsSite, fnNumber, shiftNumber, receiptDatetime, fiscalReceiptNumber,
+                    fiscalDocumentNumber, ecrRegistrationNumber, fiscalDocumentAttribute, extTimestamp, createdAt
+                }) {
         this.extId = extId
         this.totalAmount = totalAmount
         this.fnsSite = fnsSite // Адрес сайта ФНС
@@ -17,4 +20,4 @@ class ReceiptDTO {
 
 }
 
-module.exports = ReceiptDTO
+module.exports = FiscalDataDTO

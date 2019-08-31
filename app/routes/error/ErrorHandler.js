@@ -1,38 +1,26 @@
 const logger = require("my-custom-logger")
+const ReceiptNotFoundError = require("../../errors/ReceiptNotFoundError")
 
 const ErrorHandler = (error, request, reply) => {
-    console.log(error)
     if (error.message === "Not Found") {
         logger.error("Url not found " + request.req.url)
-        return reply.type("application/json").code(404).send({message: "Not found"})
+        return reply.type("application/json").code(404).send({message: "URL not found"})
     }
 
-    if (error.message === "SignatureValidationError") {
-        logger.error("Rejected request due invalid signature [401]")
-        return reply.type("application/json").code(401).send({message: "Invalid signature"})
+    if(error instanceof ReceiptNotFoundError) {
+        logger.debug("Receipt not found with id " + error.receiptId)
+        return reply.type("application/json").code(404).send({message: "Receipt not found"})
     }
 
-    if (error.message === "RobokassaUnknownCode") {
-        logger.error("Unknown response from Robokassa")
-        return reply.type("application/json").code(500).send({message: "Internal Server Error"})
-    }
+    const msg = `
+    body: ${JSON.stringify(request.body)}
+    query: ${JSON.stringify(request.query)}
+    params: ${JSON.stringify(request.params)}
+    error: ${error.message || error}
+    stack: ${error.stack}
+    `
+    logger.error(msg)
 
-    if (error.message === "PaymentRequestNotFound") {
-        logger.error("Payment request not found")
-        return reply.type("application/json").code(500).send({message: "Internal Server Error"})
-    }
-
-    if (error.message === "DepositNotFound") {
-        logger.error("Deposit not found")
-        return reply.type("application/json").code(500).send({message: "Internal Server Error"})
-    }
-
-    if (error.message === "PaymentRequestAlreadyProcessed") {
-        logger.error("PaymentRequestAlreadyProcessed")
-        return reply.type("application/json").code(200).send({message: "PaymentAlreadyProcessed"})
-    }
-
-    logger.error(error)
     return reply.type("application/json").code(500).send({message: "Internal Server Error"})
 }
 

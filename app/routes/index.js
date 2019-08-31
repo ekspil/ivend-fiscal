@@ -1,20 +1,10 @@
-const logger = require("my-custom-logger")
+const ErrorHandler = require("./error/ErrorHandler")
 
 function Routes({fastify, receiptController}) {
-    fastify.setErrorHandler((error, request, reply) => {
-        console.log(error)
-        if (error.message === "Not Found") {
-            return reply.type("application/json").code(404).send()
-        }
+    fastify.setErrorHandler(ErrorHandler)
 
-        logger.error(error)
-        logger.error(`RequestBody: ${JSON.stringify(request.body)}`)
-        logger.error(error.stack)
-
-        reply.type("application/json").code(500).send()
-    })
-
-    fastify.post("/api/v1/receipt", receiptController.createReceipt)
+    fastify.post("/api/v1/fiscal/receipt", receiptController.createReceipt)
+    fastify.get("/api/v1/fiscal/receipt/:id", receiptController.getReceiptById)
 }
 
 module.exports = Routes

@@ -1,8 +1,11 @@
-const FiscalRequest = ({extId, email, sno, inn, place, itemName, receiptAmount, paymentType, timestamp}) => {
-    const paymentTypeInteger = paymentType
+const FiscalRequest = function ({external_id, email, sno, inn, place, itemName, itemPrice, paymentType, timestamp}) {
+    const paymentTypeMap = {
+        CASH: 0,
+        CASHLESS:1
+    }
 
     return {
-        external_id: extId,
+        external_id,
         receipt: {
             client: {
                 email: "kkt@kkt.ru"
@@ -16,9 +19,9 @@ const FiscalRequest = ({extId, email, sno, inn, place, itemName, receiptAmount, 
             items: [
                 {
                     name: itemName,
-                    price: receiptAmount,
+                    price: itemPrice,
                     quantity: 1.0,
-                    sum: receiptAmount,
+                    sum: itemPrice,
                     measurement_unit: "шт",
                     payment_method: "full_payment",
                     payment_object: "commodity",
@@ -30,12 +33,12 @@ const FiscalRequest = ({extId, email, sno, inn, place, itemName, receiptAmount, 
             ],
             payments: [
                 {
-                    type: paymentType ? "0" : "10",
-                    sum: receiptAmount
+                    type: paymentTypeMap[paymentType],
+                    sum: itemPrice
                 }
             ],
 
-            total: receiptAmount
+            total: itemPrice
         },
         service: {
             callback_url: ""
