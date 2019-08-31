@@ -1,11 +1,14 @@
+/* eslint-disable no-empty */
+
 const fetch = require("node-fetch")
 const UmkaResponse = require("../models/UmkaResponse")
 const UmkaReceiptReport = require("../models/UmkaReceiptReport")
 const UmkaApiTimeout = require("../errors/UmkaApiTimeout")
+const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
 
 const fetchWithTimeout = async (url, options) => {
-    if(!options) {
+    if (!options) {
         options = {}
     }
 
@@ -93,7 +96,20 @@ class UmkaAPI {
             }
             default: {
                 const text = await response.text()
-                logger.error(`umka_api_error_unknown_status_code ${response.status} ${text}`)
+
+                let json = null
+
+                try {
+                    json = JSON.parse(text)
+                    json = new UmkaResponse(json)
+                }
+                catch (e) {}
+
+                if(json) {
+                    throw new UmkaResponseError(json)
+                }
+
+                logger.error(`umka_api_error_unknown_status_code ${fiscalRequest.external_id} ${response.status} ${text}`)
                 throw new Error("Unknown status code from server: " + response.status)
             }
         }
@@ -135,7 +151,20 @@ class UmkaAPI {
             }
             default: {
                 const text = await response.text()
-                logger.error(`umka_api_error_unknown_status_code ${response.status} ${text}`)
+
+                let json = null
+
+                try {
+                    json = JSON.parse(text)
+                    json = new UmkaResponse(json)
+                }
+                catch (e) {}
+
+                if(json) {
+                    throw new UmkaResponseError(json)
+                }
+
+                logger.error(`umka_api_error_unknown_status_code ${uuid} ${response.status} ${text}`)
                 throw new Error("Unknown status code from server: " + response.status)
             }
         }

@@ -2,6 +2,7 @@ const FiscalRequest = require("../models/FiscalRequest")
 const UmkaAPI = require("../utils/UmkaAPI")
 const ReceiptStatus = require("../enums/ReceiptStatus")
 const UmkaApiTimeout = require("../errors/UmkaApiTimeout")
+const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
 const redisProcessingPrefix = "fiscal_worker_processing_receipt_"
 
@@ -78,6 +79,11 @@ class FiscalizationWorker {
 
             if (e instanceof UmkaApiTimeout) {
                 return
+            }
+
+            if (e instanceof UmkaResponseError) {
+                const {json} = e
+                logger.error(`worker_process_receipt_umka_bad_response ${JSON.stringify(json)}`)
             }
 
             //todo test no race condition here
