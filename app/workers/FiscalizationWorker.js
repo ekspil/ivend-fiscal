@@ -93,8 +93,8 @@ class FiscalizationWorker {
             if (e instanceof UmkaResponseError) {
                 const {json} = e
                 const time = await this.cacheService.get(redisProcessingPrefix + receipt.id)
-                const startDate = new Date(Number(time))
-                const expired = (new Date() > (startDate + Number(process.env.FISCAL_PENDING_TIMEOUT_SECONDS) * 1000))
+                const expireDate = new Date(Number(time) + Number(process.env.FISCAL_PENDING_TIMEOUT_SECONDS) * 1000)
+                const expired = (new Date() > expireDate)
 
                 if (expired) {
                     logger.error(`worker_process_receipt_timeout ${receipt.id} ${JSON.stringify(e.json)}`)
