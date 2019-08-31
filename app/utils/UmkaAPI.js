@@ -4,8 +4,43 @@ const fetch = require("node-fetch")
 const UmkaResponse = require("../models/UmkaResponse")
 const UmkaReceiptReport = require("../models/UmkaReceiptReport")
 const UmkaApiTimeout = require("../errors/UmkaApiTimeout")
+const UmkaNotAuthorized = require("../errors/UmkaNotAuthorized")
 const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
+
+
+let token
+
+/**
+ * Get UMKA token for sending authorized requests
+ *
+ * @returns {Promise<string>}
+ */
+const getToken = async () => {
+    const response = await fetchWithTimeout(`https://umka365.ru/kkm-trade/atolpossystem/v4/getToken?login=${process.env.UMKA_LOGIN}&pass=${process.env.UMKA_PASS}`)
+
+    switch (response.status) {
+        case 200: {
+            const json = await response.json()
+
+            if (json.text) {
+                logger.debug(`umka_login_error_text [${json.code}] ${json.error.text}`)
+                throw new Error(`Failed to login: [${json.code}] ${json.error.text}`)
+            }
+
+            token = json.token
+            break
+        }
+        default:
+            throw new Error("Cannot login, unknown status code: " + response.status)
+    }
+}
+
+// Umka token is valid 24 hours by the spec
+// lets reget it every 23 hours
+setInterval(() => {
+    getToken()
+}, 23 * 60 * 60 * 1000)
 
 const fetchWithTimeout = async (url, options) => {
     if (!options) {
@@ -32,31 +67,7 @@ const fetchWithTimeout = async (url, options) => {
 
 }
 
-
 class UmkaAPI {
-    /**
-     * Get UMKA token for sending authorized requests
-     *
-     * @returns {Promise<string>}
-     */
-    static async getToken() {
-        const response = await fetchWithTimeout(`https://umka365.ru/kkm-trade/atolpossystem/v4/getToken?login=${process.env.UMKA_LOGIN}&pass=${process.env.UMKA_PASS}`)
-
-        switch (response.status) {
-            case 200: {
-                const json = await response.json()
-
-                if (json.text) {
-                    logger.debug(`umka_api_error_text [${json.code}] ${json.error.text}`)
-                    throw new Error(`Failed to login: [${json.code}] ${json.error.text}`)
-                }
-
-                return json.token
-            }
-            default:
-                throw new Error("Cannot login, unknown status code: " + response.status)
-        }
-    }
 
     /**
      *
@@ -65,8 +76,6 @@ class UmkaAPI {
      * @returns {Promise<UmkaResponse>}
      */
     static async registerSale(machineKkt, fiscalRequest) {
-        const token = await this.getToken()
-
         const headers = {
             "Content-Type": "application/json",
             token
@@ -79,6 +88,10 @@ class UmkaAPI {
         })
 
         switch (response.status) {
+            case 401: {
+                await getToken()
+                throw new UmkaNotAuthorized()
+            }
             case 200: {
                 const json = await response.json()
 
@@ -103,9 +116,10 @@ class UmkaAPI {
                     json = JSON.parse(text)
                     json = new UmkaResponse(json)
                 }
-                catch (e) {}
+                catch (e) {
+                }
 
-                if(json) {
+                if (json) {
                     throw new UmkaResponseError(json)
                 }
 
@@ -121,8 +135,6 @@ class UmkaAPI {
      * @returns {Promise<UmkaReceiptReport>}
      */
     static async getReport(uuid) {
-        const token = await this.getToken()
-
         const headers = {
             "Content-Type": "application/json",
             token
@@ -134,6 +146,10 @@ class UmkaAPI {
         })
 
         switch (response.status) {
+            case 401: {
+                await getToken()
+                throw new UmkaNotAuthorized()
+            }
             case 200: {
                 const json = await response.json()
 
@@ -158,9 +174,10 @@ class UmkaAPI {
                     json = JSON.parse(text)
                     json = new UmkaResponse(json)
                 }
-                catch (e) {}
+                catch (e) {
+                }
 
-                if(json) {
+                if (json) {
                     throw new UmkaResponseError(json)
                 }
 
