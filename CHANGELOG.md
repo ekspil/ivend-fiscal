@@ -12,3 +12,7 @@
 
 * Get random receipt
 * Finally fix timeout handling
+
+# 1.0.3 - Release
+
+* Share access token between all requests (previously was logging in every request)
