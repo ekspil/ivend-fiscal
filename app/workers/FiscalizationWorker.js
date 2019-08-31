@@ -1,7 +1,9 @@
 const FiscalRequest = require("../models/FiscalRequest")
 const UmkaAPI = require("../utils/UmkaAPI")
 const ReceiptStatus = require("../enums/ReceiptStatus")
+const UmkaApiTimeout = require("../errors/UmkaApiTimeout")
 const logger = require("my-custom-logger")
+const redisProcessingPrefix = "fiscal_worker_processing_receipt_"
 
 class FiscalizationWorker {
 
@@ -9,17 +11,17 @@ class FiscalizationWorker {
      *
      * @param receiptService {ReceiptService}
      * @param fiscalService {FiscalService}
+     * @param cacheService {CacheService}
      */
-    constructor({receiptService, fiscalService}) {
+    constructor({receiptService, fiscalService, cacheService}) {
         this.receiptService = receiptService
         this.fiscalService = fiscalService
+        this.cacheService = cacheService
         this.working = false
 
         this.processReceipt = this.processReceipt.bind(this)
         this.start = this.start.bind(this)
         this.stop = this.stop.bind(this)
-
-        this.processing = {}
     }
 
     async processReceipt() {
@@ -29,12 +31,14 @@ class FiscalizationWorker {
             return
         }
 
-        if (this.processing[receipt.id]) {
+        const isProcessing = await this.cacheService.get(redisProcessingPrefix + receipt.id)
+
+        if (isProcessing) {
             return
         }
 
         try {
-            this.processing[receipt.id] = true
+            await this.cacheService.set(redisProcessingPrefix + receipt.id, new Date().getTime(), Number(process.env.WORKER_PROCESSING_RECEIPT_TIMEOUT_SECONDS))
 
             const {id, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber} = receipt
 
@@ -58,12 +62,21 @@ class FiscalizationWorker {
             const result = await UmkaAPI.registerSale(kktRegNumber, fiscalRequest)
 
             logger.debug(`worker_process_receipt_umka_replied ${result.uuid}`)
+
             await this.fiscalService.handleFiscalizationResult(receipt, result.uuid)
 
-            logger.debug("worker_process_receipt_handled")
+            const time = await this.cacheService.get(redisProcessingPrefix + receipt.id)
+            const startDate = new Date(Number(time))
+            const diff = new Date() - startDate
+
+            logger.debug(`worker_process_receipt_handled processing #${receipt.id} took ${diff} milliseconds`)
         } catch (e) {
             if (e.code === "23505") {
                 //race condition
+                return
+            }
+
+            if (e instanceof UmkaApiTimeout) {
                 return
             }
 
@@ -76,7 +89,7 @@ class FiscalizationWorker {
 
             logger.error(`error_receipt_unknown ${receipt.id} ` + e)
         } finally {
-            this.processing[receipt.id] = undefined
+            await this.cacheService.flush(redisProcessingPrefix + receipt.id)
         }
     }
 
