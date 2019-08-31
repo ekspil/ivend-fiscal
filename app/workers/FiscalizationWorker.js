@@ -6,6 +6,15 @@ const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
 const redisProcessingPrefix = "fiscal_worker_processing_receipt_"
 
+//todo test no race condition here
+const markFailed = async (receiptService, receipt) => {
+    try {
+        await receiptService.setStatus(receipt.id, ReceiptStatus.ERROR)
+    } catch (e1) {
+        logger.error(`worker_process_receipt_set_status_failed ${e1}`)
+    }
+}
+
 class FiscalizationWorker {
 
     /**
@@ -39,7 +48,7 @@ class FiscalizationWorker {
         }
 
         try {
-            await this.cacheService.set(redisProcessingPrefix + receipt.id, new Date().getTime(), Number(process.env.WORKER_PROCESSING_RECEIPT_TIMEOUT_SECONDS))
+            await this.cacheService.set(redisProcessingPrefix + receipt.id, new Date().getTime(), Number(process.env.WORKER_PROCESSING_RECEIPT_CACHE_TIMEOUT_SECONDS))
 
             const {id, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber} = receipt
 
@@ -83,17 +92,20 @@ class FiscalizationWorker {
 
             if (e instanceof UmkaResponseError) {
                 const {json} = e
-                logger.error(`worker_process_receipt_umka_bad_response ${JSON.stringify(json)}`)
-            }
+                const time = await this.cacheService.get(redisProcessingPrefix + receipt.id)
+                const startDate = new Date(Number(time))
+                const expired = (new Date() > (startDate + Number(process.env.FISCAL_PENDING_TIMEOUT_SECONDS) * 1000))
 
-            //todo test no race condition here
-            try {
-                await this.receiptService.setStatus(receipt.id, ReceiptStatus.ERROR)
-            } catch (e1) {
-                logger.error(`worker_process_receipt_set_status_failed ${e1}`)
+                if (expired) {
+                    logger.error(`worker_process_receipt_timeout ${receipt.id} ${JSON.stringify(e.json)}`)
+                    return await markFailed(this.receiptService, receipt)
+                }
+
+                return logger.error(`worker_process_receipt_umka_bad_response ${receipt.id} ${JSON.stringify(json)}`)
             }
 
             logger.error(`error_receipt_unknown ${receipt.id} ` + e)
+            await markFailed(this.receiptService, receipt)
         } finally {
             await this.cacheService.flush(redisProcessingPrefix + receipt.id)
         }
