@@ -11,7 +11,7 @@ exports.up = function (knex, Promise) {
             table.text("payment_type").notNull()
             table.text("kkt_reg_number").nullable()
             table.bigInteger("fiscal_data_id").nullable()
-            table.text("status").notNull()
+            table.text("status").notNull().index(["status"], "status_index")
             table.dateTime("created_at").notNullable()
         }),
         knex.schema.createTable("fiscal_datas", function (table) {
