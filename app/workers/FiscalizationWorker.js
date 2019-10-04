@@ -51,7 +51,7 @@ class FiscalizationWorker {
 
             const {id, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber} = receipt
 
-            const extId = `IVEND-receipt-${id}`
+            const extId = `IVEND-receipt-${process.env.NODE_ENV}-${id}`
 
             logger.debug(`worker_process_receipt_start #${id} ${extId} ${email} ${inn} ${itemName} ${itemPrice} ${kktRegNumber}`)
 
