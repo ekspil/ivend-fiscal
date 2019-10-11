@@ -20,3 +20,7 @@
 # 1.0.4 - Release
 
 * Remove UmkaClientTimeout
+
+# 1.0.5 - Release
+
+* Pass controllerUid to the Receipt
