@@ -22,6 +22,7 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
     test("Should create Receipt without kkt", async () => {
         const receiptDTO = new ReceiptDTO(
             {
+                controllerUid: "controller_uid",
                 email: "test@test.ru",
                 place: "Красная площадь",
                 inn: "7727529784",
@@ -41,6 +42,7 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
 
         const body = JSON.parse(response.body)
 
+        expect(body.controllerUid).toBe(receiptDTO.controllerUid)
         expect(body.email).toBe(receiptDTO.email)
         expect(body.place).toBe(receiptDTO.place)
         expect(body.inn).toBe(receiptDTO.inn)
@@ -56,6 +58,7 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
     test("Should get receipt by id", async () => {
         const receiptDTO = new ReceiptDTO(
             {
+                controllerUid: "controller_uid",
                 email: "test@test.ru",
                 place: "Красная площадь",
                 inn: "7727529784",
@@ -75,6 +78,7 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
 
         let body = JSON.parse(response.body)
 
+        expect(body.controllerUid).toBe(receiptDTO.controllerUid)
         expect(body.email).toBe(receiptDTO.email)
         expect(body.place).toBe(receiptDTO.place)
         expect(body.inn).toBe(receiptDTO.inn)
@@ -89,7 +93,6 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
 
         const receiptId = body.id
 
-
         response = await fastify.inject({
             method: "GET", url: "/api/v1/fiscal/receipt/" + body.id,
         })
@@ -99,6 +102,7 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
         body = JSON.parse(response.body)
 
         expect(body.id).toBe(receiptId)
+        expect(body.controllerUid).toBe(receiptDTO.controllerUid)
         expect(body.email).toBe(receiptDTO.email)
         expect(body.place).toBe(receiptDTO.place)
         expect(body.inn).toBe(receiptDTO.inn)
