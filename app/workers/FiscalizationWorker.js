@@ -1,7 +1,6 @@
 const FiscalRequest = require("../models/FiscalRequest")
 const UmkaAPI = require("../utils/UmkaAPI")
 const ReceiptStatus = require("../enums/ReceiptStatus")
-const UmkaApiTimeout = require("../errors/UmkaApiTimeout")
 const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
 const redisProcessingPrefix = "fiscal_worker_processing_receipt_"
@@ -52,7 +51,7 @@ class FiscalizationWorker {
 
             const {id, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber} = receipt
 
-            const extId = `IVEND-receipt-${id}`
+            const extId = `IVEND-receipt-${process.env.NODE_ENV}-${id}`
 
             logger.debug(`worker_process_receipt_start #${id} ${extId} ${email} ${inn} ${itemName} ${itemPrice} ${kktRegNumber}`)
 
@@ -83,10 +82,6 @@ class FiscalizationWorker {
         } catch (e) {
             if (e.code === "23505") {
                 //race condition
-                return
-            }
-
-            if (e instanceof UmkaApiTimeout) {
                 return
             }
 

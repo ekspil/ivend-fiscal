@@ -16,3 +16,7 @@
 # 1.0.3 - Release
 
 * Share access token between all requests (previously was logging in every request)
+
+# 1.0.4 - Release
+
+* Remove UmkaClientTimeout

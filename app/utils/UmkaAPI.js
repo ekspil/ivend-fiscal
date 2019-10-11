@@ -3,7 +3,6 @@
 const fetch = require("node-fetch")
 const UmkaResponse = require("../models/UmkaResponse")
 const UmkaReceiptReport = require("../models/UmkaReceiptReport")
-const UmkaApiTimeout = require("../errors/UmkaApiTimeout")
 const UmkaNotAuthorized = require("../errors/UmkaNotAuthorized")
 const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
@@ -17,7 +16,7 @@ let token
  * @returns {Promise<string>}
  */
 const getToken = async () => {
-    const response = await fetchWithTimeout(`https://umka365.ru/kkm-trade/atolpossystem/v4/getToken?login=${process.env.UMKA_LOGIN}&pass=${process.env.UMKA_PASS}`)
+    const response = await fetchUrl(`https://umka365.ru/kkm-trade/atolpossystem/v4/getToken?login=${process.env.UMKA_LOGIN}&pass=${process.env.UMKA_PASS}`)
 
     switch (response.status) {
         case 200: {
@@ -42,29 +41,15 @@ setInterval(() => {
     getToken()
 }, 23 * 60 * 60 * 1000)
 
-const fetchWithTimeout = async (url, options) => {
+const fetchUrl = async (url, options) => {
     if (!options) {
         options = {}
     }
+    const method = options.method || "GET"
+    const body = options.body
+    logger.debug(`umka_api_fetch_url [${method}] ${url} ${body || ""}`)
 
-    return new Promise((resolve, reject) => {
-        const timeoutMillis = Number(process.env.UMKA_API_FETCH_TIMEOUT_SECONDS) * 1000
-        const method = options.method || "GET"
-        const body = options.body
-
-        setTimeout(() => {
-            logger.debug(`umka_api_fetch_url_timeout [${method}] ${url} ${body || ""}`)
-            reject(new UmkaApiTimeout())
-        }, timeoutMillis)
-
-        logger.debug(`umka_api_fetch_url [${method}] ${url} ${body || ""}`)
-
-        fetch(url, options)
-            .then(resp => resolve(resp))
-            .catch(e => reject(e))
-    })
-
-
+    return await fetch(url, options)
 }
 
 class UmkaAPI {
@@ -81,7 +66,7 @@ class UmkaAPI {
             token
         }
 
-        const response = await fetchWithTimeout(`https://umka365.ru/kkm-trade/atolpossystem/v4/${machineKkt || "any"}/sell/`, {
+        const response = await fetchUrl(`https://umka365.ru/kkm-trade/atolpossystem/v4/${machineKkt || "any"}/sell/`, {
             method: "POST",
             headers,
             body: JSON.stringify(fiscalRequest)
@@ -115,8 +100,7 @@ class UmkaAPI {
                 try {
                     json = JSON.parse(text)
                     json = new UmkaResponse(json)
-                }
-                catch (e) {
+                } catch (e) {
                 }
 
                 if (json) {
@@ -140,7 +124,7 @@ class UmkaAPI {
             token
         }
 
-        const response = await fetchWithTimeout(`https://umka365.ru/kkm-trade/atolpossystem/v4/any/report/${uuid}`, {
+        const response = await fetchUrl(`https://umka365.ru/kkm-trade/atolpossystem/v4/any/report/${uuid}`, {
             method: "GET",
             headers
         })
@@ -173,8 +157,7 @@ class UmkaAPI {
                 try {
                     json = JSON.parse(text)
                     json = new UmkaResponse(json)
-                }
-                catch (e) {
+                } catch (e) {
                 }
 
                 if (json) {
