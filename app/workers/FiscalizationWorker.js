@@ -49,9 +49,9 @@ class FiscalizationWorker {
         try {
             await this.cacheService.set(redisProcessingPrefix + receipt.id, new Date().getTime(), Number(process.env.WORKER_PROCESSING_RECEIPT_CACHE_TIMEOUT_SECONDS))
 
-            const {id, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber} = receipt
+            const {id, controllerUid, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber} = receipt
 
-            const extId = `IVEND-receipt-${process.env.NODE_ENV}-${id}`
+            const extId = `IVEND-receipt-${id}-${controllerUid}`
 
             logger.debug(`worker_process_receipt_start #${id} ${extId} ${email} ${inn} ${itemName} ${itemPrice} ${kktRegNumber}`)
 

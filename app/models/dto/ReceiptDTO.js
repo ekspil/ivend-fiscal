@@ -2,8 +2,9 @@ const FiscalDataDTO = require("./FiscalDataDTO")
 
 class ReceiptDTO {
 
-    constructor({id, email, sno, inn, place, itemName, itemPrice, paymentType, fiscalData, status, createdAt, kktRegNumber}) {
+    constructor({id, controllerUid, email, sno, inn, place, itemName, itemPrice, paymentType, fiscalData, status, createdAt, kktRegNumber}) {
         this.id = id
+        this.controllerUid = controllerUid
         this.email = email
         this.sno = sno
         this.inn = inn
