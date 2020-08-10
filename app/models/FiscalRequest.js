@@ -1,4 +1,4 @@
-const FiscalRequest = function ({external_id, email, sno, inn, place, itemName, itemPrice, paymentType, timestamp}) {
+const FiscalRequest = function ({external_id, email, sno, inn, place, itemName, itemPrice, paymentType, timestamp, itemType}) {
     const paymentTypeMap = {
         CASH: 0,
         CASHLESS:1
@@ -24,13 +24,14 @@ const FiscalRequest = function ({external_id, email, sno, inn, place, itemName, 
                     sum: itemPrice,
                     measurement_unit: "шт",
                     payment_method: "full_payment",
-                    payment_object: "commodity",
+                    payment_object: itemType || "commodity",
                     vat: {
                         type: "none",
                         sum: 0
                     }
                 }
             ],
+
             payments: [
                 {
                     type: paymentTypeMap[paymentType],

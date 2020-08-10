@@ -49,7 +49,7 @@ class FiscalizationWorker {
         try {
             await this.cacheService.set(redisProcessingPrefix + receipt.id, new Date().getTime(), Number(process.env.WORKER_PROCESSING_RECEIPT_CACHE_TIMEOUT_SECONDS))
 
-            const {id, controllerUid, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber} = receipt
+            const {id, controllerUid, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber, itemType} = receipt
 
             const extId = `IVEND-receipt-${id}-${controllerUid}`
 
@@ -64,7 +64,8 @@ class FiscalizationWorker {
                 itemName,
                 itemPrice,
                 paymentType,
-                timestamp: createdAt
+                timestamp: createdAt,
+                itemType
             })
 
 
