@@ -17,13 +17,14 @@ class ReceiptDAO {
         this.setStatus = this.setStatus.bind(this)
     }
 
+
     /**
      *
      * @param receipt {ReceiptDTO}
      * @returns {Promise<Receipt>}
      */
     async create(receipt, trx) {
-        const {email, controllerUid, sno, inn, place, itemName, itemPrice, paymentType, kktRegNumber} = receipt
+        const {email, controllerUid, sno, inn, place, itemName, itemType, itemPrice, paymentType, kktRegNumber} = receipt
 
         const [createdReceipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
             .returning("*")
@@ -36,6 +37,7 @@ class ReceiptDAO {
                 kkt_reg_number: kktRegNumber,
                 item_name: itemName,
                 item_price: itemPrice,
+                item_type: itemType,
                 payment_type: paymentType,
                 status: ReceiptStatus.PENDING,
                 created_at: new Date()
@@ -43,6 +45,7 @@ class ReceiptDAO {
 
         return new Receipt(createdReceipt)
     }
+
 
     /**
      *
@@ -78,6 +81,7 @@ class ReceiptDAO {
             .select(`kkt_reg_number`)
             .select(`status`)
             .select(`receipts.created_at as r_created_at`)
+            .select(`item_type`)
 
         if (!receipt) {
             return null
