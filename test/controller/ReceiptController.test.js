@@ -1,5 +1,6 @@
 require("dotenv").config()
 
+
 const App = require("../../app/app")
 const ReceiptDTO = require("../../app/models/dto/ReceiptDTO")
 const SNO = require("../../app/enums/SNO")
@@ -29,7 +30,8 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
                 itemName: "Услуги мойки",
                 itemPrice: "100.00",
                 paymentType: PaymentType.CASHLESS,
-                sno: SNO.envd
+                sno: SNO.envd,
+                itemType: "service"
             })
 
         const response = await fastify.inject({
@@ -48,6 +50,7 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
         expect(body.inn).toBe(receiptDTO.inn)
         expect(body.itemName).toBe(receiptDTO.itemName)
         expect(body.itemPrice).toBe(receiptDTO.itemPrice)
+        expect(body.itemType).toBe(receiptDTO.itemType)
         expect(body.paymentType).toBe(PaymentType.CASHLESS)
         expect(body.sno).toBe(SNO.envd)
         expect(body.status).toBe(ReceiptStatus.PENDING)
@@ -65,7 +68,8 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
                 itemName: "Услуги мойки",
                 itemPrice: "100.00",
                 paymentType: PaymentType.CASHLESS,
-                sno: SNO.envd
+                sno: SNO.envd,
+                itemType: "service"
             })
 
         let response = await fastify.inject({
@@ -84,6 +88,7 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
         expect(body.inn).toBe(receiptDTO.inn)
         expect(body.itemName).toBe(receiptDTO.itemName)
         expect(body.itemPrice).toBe(receiptDTO.itemPrice)
+        expect(body.itemType).toBe(receiptDTO.itemType)
         expect(body.paymentType).toBe(PaymentType.CASHLESS)
         expect(body.sno).toBe(SNO.envd)
         expect(body.status).toBe(ReceiptStatus.PENDING)
@@ -108,6 +113,7 @@ describe("Test POST receipt (/api/v1/fiscal/receipt)", () => {
         expect(body.inn).toBe(receiptDTO.inn)
         expect(body.itemName).toBe(receiptDTO.itemName)
         expect(body.itemPrice).toBe(receiptDTO.itemPrice)
+        expect(body.itemType).toBe(receiptDTO.itemType)
         expect(body.paymentType).toBe(PaymentType.CASHLESS)
         expect(body.sno).toBe(SNO.envd)
         expect(body.status).toBe(ReceiptStatus.PENDING)

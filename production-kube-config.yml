@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: fiscal
-        image: registry.gitlab.com/pshenmic/ivend/fiscal:1.0.5
+        image: registry.gitlab.com/pshenmic/ivend/fiscal:1.0.6
         imagePullPolicy: Always
         ports:
           - containerPort: 5500

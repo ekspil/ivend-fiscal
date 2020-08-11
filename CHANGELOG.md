@@ -24,3 +24,7 @@
 # 1.0.5 - Release
 
 * Pass controllerUid to the Receipt
+
+# 1.0.6 - Release
+
+* Service\commodity

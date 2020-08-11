@@ -39,6 +39,7 @@ components:
         - place
         - itemName
         - itemPrice
+        - itemType
         - paymentType
         - status
         - createdAt
@@ -71,6 +72,9 @@ components:
         itemPrice:
           type: "string"
           description: "Цена товара"
+        itemType:
+          type: "string"
+          description: "Вид товара"
         paymentType:
           $ref: '#/Definitions/PaymentType'
         status:
