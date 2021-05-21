@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: fiscal
-        image: registry.gitlab.com/pshenmic/ivend/fiscal:$CIRCLE_SHA1
+        image: cr.yandex/crpfb8t478v3of681kce/graphql:$CIRCLE_SHA1
         imagePullPolicy: Always
         ports:
           - containerPort: 5500
