@@ -45,9 +45,12 @@ const start = async (port) => {
     })
 
     const redis = new Redis({
-        host: process.env.REDIS_HOST,
-        port: process.env.POSTGRES_PORT,
+        sentinels: [
+            {host: process.env.REDIS_HOST, port: process.env.REDIS_PORT}
+        ],
+        name: "redis",
         password: process.env.REDIS_PASSWORD,
+        role: "master"
     })
 
     await knex.raw("SELECT 1+1")
