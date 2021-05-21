@@ -40,3 +40,4 @@ spec:
               name: fiscal-config
       imagePullSecrets:
       - name: gitlabregistrycred
+
