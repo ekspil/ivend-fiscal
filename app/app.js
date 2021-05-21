@@ -38,14 +38,15 @@ const start = async (port) => {
             host: process.env.POSTGRES_HOST,
             user: process.env.POSTGRES_USER,
             password: process.env.POSTGRES_PASSWORD,
+            port: process.env.POSTGRES_PORT,
             database: process.env.POSTGRES_DB,
             ssl: true
         }
     })
 
     const redis = new Redis({
-        port: 6379,
         host: process.env.REDIS_HOST,
+        port: process.env.POSTGRES_PORT,
         password: process.env.REDIS_PASSWORD,
     })
 
