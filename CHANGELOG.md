@@ -28,3 +28,7 @@
 # 1.0.6 - Release
 
 * Service\commodity
+
+# 1.0.7 - Release
+
+* Move to yandex
