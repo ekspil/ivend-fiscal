@@ -4,7 +4,7 @@ const FiscalRequest = function ({external_id, email, sno, inn, place, itemName, 
         CASHLESS:1
     }
 
-    return {
+    const payload = {
         external_id,
         receipt: {
             client: {
@@ -46,6 +46,15 @@ const FiscalRequest = function ({external_id, email, sno, inn, place, itemName, 
         },
         timestamp
     }
+
+    if(sno === "osn"){
+        payload.receipt.items[0].vat = {
+            type: "vat20",
+            sum: Number((itemPrice * 0.2).toFixed(2))
+        }
+    }
+
+    return payload
 }
 
 
