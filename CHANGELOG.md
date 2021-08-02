@@ -28,3 +28,11 @@
 # 1.0.6 - Release
 
 * Service\commodity
+
+# 1.0.7 - Release
+
+* Yandex
+
+# 1.0.8 - Release
+
+* vat20
