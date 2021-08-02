@@ -50,7 +50,7 @@ const FiscalRequest = function ({external_id, email, sno, inn, place, itemName, 
     if(sno === "osn"){
         payload.receipt.items[0].vat = {
             type: "vat20",
-            sum: Number((itemPrice * 0.2).toFixed(2))
+            sum: Number((itemPrice - (itemPrice/1.2)).toFixed(2))
         }
     }
 

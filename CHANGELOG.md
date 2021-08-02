@@ -36,3 +36,7 @@
 # 1.0.8 - Release
 
 * vat20
+
+# 1.0.9 - Release
+
+* vat20
