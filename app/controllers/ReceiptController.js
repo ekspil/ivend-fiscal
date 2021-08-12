@@ -13,10 +13,21 @@ class ReceiptController {
         this.receiptService = receiptService
 
         this.createReceipt = this.createReceipt.bind(this)
+        this.createReceiptRekassa = this.createReceiptRekassa.bind(this)
         this.getReceiptById = this.getReceiptById.bind(this)
     }
 
     async createReceipt(request) {
+        const receiptDTO = new ReceiptDTO(request.body)
+
+        const receipt = await this.receiptService.create(receiptDTO)
+
+        logger.debug(`created_receipt ${JSON.stringify(receipt)}`)
+
+        return new ReceiptDTO(receipt)
+    }
+
+    async createReceiptRekassa(request) {
         const receiptDTO = new ReceiptDTO(request.body)
 
         const receipt = await this.receiptService.create(receiptDTO)

@@ -1,5 +1,7 @@
 const FiscalRequest = require("../models/FiscalRequest")
+const FiscalRequestRekassa = require("../models/FiscalRequestRekassa")
 const UmkaAPI = require("../utils/UmkaAPI")
+const RekassaAPI = require("../utils/RekassaAPI")
 const ReceiptStatus = require("../enums/ReceiptStatus")
 const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
@@ -55,25 +57,51 @@ class FiscalizationWorker {
 
             logger.debug(`worker_process_receipt_start #${id} ${extId} ${email} ${inn} ${itemName} ${itemPrice} ${kktRegNumber}`)
 
-            const fiscalRequest = new FiscalRequest({
-                external_id: extId,
-                email,
-                sno,
-                inn,
-                place,
-                itemName,
-                itemPrice,
-                paymentType,
-                timestamp: createdAt,
-                itemType
-            })
+            let fiscalRequest
+            let result
+            if(!receipt.rekassa_number){
+                fiscalRequest = new FiscalRequest({
+                    external_id: extId,
+                    email,
+                    sno,
+                    inn,
+                    place,
+                    itemName,
+                    itemPrice,
+                    paymentType,
+                    timestamp: createdAt,
+                    itemType
+                })
+
+                result = await UmkaAPI.registerSale(kktRegNumber, fiscalRequest)
+
+                logger.debug(`worker_process_receipt_umka_replied ${result.uuid}`)
+
+                await this.fiscalService.handleFiscalizationResult(receipt, result.uuid)
+
+            }
+            if(receipt.rekassa_number){
+                fiscalRequest = new FiscalRequestRekassa({
+                    external_id: extId,
+                    email,
+                    sno,
+                    inn,
+                    place,
+                    itemName,
+                    itemPrice,
+                    paymentType,
+                    timestamp: createdAt,
+                    itemType
+                })
+
+                result = await RekassaAPI.registerSale(receipt.rekassa_kkt_id, fiscalRequest, receipt, this.cacheService)
+                logger.debug(`worker_process_receipt_rekassa_replied ${result.uuid}`)
+
+                await this.fiscalService.handleFiscalizationResultRekassa(receipt, result)
+
+            }
 
 
-            const result = await UmkaAPI.registerSale(kktRegNumber, fiscalRequest)
-
-            logger.debug(`worker_process_receipt_umka_replied ${result.uuid}`)
-
-            await this.fiscalService.handleFiscalizationResult(receipt, result.uuid)
 
             const time = await this.cacheService.get(redisProcessingPrefix + receipt.id)
             const startDate = new Date(Number(time))
