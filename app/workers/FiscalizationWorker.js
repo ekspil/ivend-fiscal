@@ -128,7 +128,7 @@ class FiscalizationWorker {
                 return logger.error(`worker_process_receipt_umka_bad_response ${receipt.id} ${JSON.stringify(json)}`)
             }
 
-            logger.error(`error_receipt_unknown ${receipt.id} ` + e)
+            logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${e}`)
             await markFailed(this.receiptService, receipt)
         } finally {
             await this.cacheService.flush(redisProcessingPrefix + receipt.id)
@@ -136,7 +136,7 @@ class FiscalizationWorker {
     }
 
     async start() {
-        this.intervalId = setInterval(this.processReceipt, 3000)
+        this.intervalId = setInterval(this.processReceipt, 6000)
         this.working = true
         logger.info("UMKA receipt polling worker started")
     }
