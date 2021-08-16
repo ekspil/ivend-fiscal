@@ -44,3 +44,7 @@
 # 1.0.10 - Release
 
 * rekassa
+
+# 1.0.11 - Hotfix
+
+* error fix

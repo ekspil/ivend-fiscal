@@ -125,7 +125,7 @@ class FiscalizationWorker {
                     return await markFailed(this.receiptService, receipt)
                 }
 
-                return logger.error(`worker_process_receipt_umka_bad_response ${receipt.id} ${JSON.stringify(json)}`)
+                return logger.error(`worker_process_receipt_umka_bad_response ${receipt.id}, , code: ${e.code}, status: ${e.status}, json: ${JSON.stringify(json)}`)
             }
 
             logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${e}`)
