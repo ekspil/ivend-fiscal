@@ -48,3 +48,7 @@
 # 1.0.11 - Hotfix
 
 * error fix
+
+# 1.0.12 - Hotfix
+
+* error fix

@@ -121,7 +121,7 @@ class FiscalizationWorker {
                 const expired = (new Date() > expireDate )
 
                 if (expired) {
-                    logger.error(`worker_process_receipt_timeout ${receipt.id} ${JSON.stringify(e.json)}`)
+                    logger.error(`worker_process_receipt_timeout ${receipt.id},  time1:${createDate}, time2:${expireDate}, ${JSON.stringify(e.json)}`)
                     return await markFailed(this.receiptService, receipt)
                 }
 
