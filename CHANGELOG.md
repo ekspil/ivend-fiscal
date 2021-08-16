@@ -60,3 +60,7 @@
 # 1.0.14 - Hotfix
 
 * error fix
+
+# 1.0.15 - Hotfix
+
+* error fix
