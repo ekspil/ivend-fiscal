@@ -29,14 +29,17 @@ class FiscalizationWorker {
         this.fiscalService = fiscalService
         this.cacheService = cacheService
         this.working = false
+        this.intervalWork = false
 
         this.processReceipt = this.processReceipt.bind(this)
         this.start = this.start.bind(this)
         this.stop = this.stop.bind(this)
     }
 
-    async processReceipt() {
-        const receipt = await this.receiptService.getRandomPending()
+    async processReceipt(receipt) {
+        if(!receipt){
+            receipt = await this.receiptService.getRandomPending()
+        }
 
         if (!receipt) {
             return
@@ -127,16 +130,41 @@ class FiscalizationWorker {
 
                 return logger.error(`worker_process_receipt_umka_bad_response ${receipt.id}, , code: ${e.code}, status: ${e.status}, json: ${JSON.stringify(json)}`)
             }
+            else {
+                const createDate = receipt.createdAt
+                const expireDate = new Date(createDate.getTime() + Number(process.env.FISCAL_PENDING_TIMEOUT_SECONDS) * 1000)
+                const expired = (new Date() > expireDate )
 
-            logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${e}`)
-            await markFailed(this.receiptService, receipt)
+                if (expired) {
+                    logger.error(`worker_process_receipt_timeout ${receipt.id},  time1:${createDate}, time2:${expireDate}, ${JSON.stringify(e.json)}`)
+                    return await markFailed(this.receiptService, receipt)
+                }
+                logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${JSON.stringify(e.json)}`)
+            }
+
+            // logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${JSON.stringify(e.json)}`)
+            // await markFailed(this.receiptService, receipt)
         } finally {
             await this.cacheService.flush(redisProcessingPrefix + receipt.id)
         }
     }
 
     async start() {
-        this.intervalId = setInterval(this.processReceipt, 500)
+        this.intervalId = setInterval(async () =>{
+            if (this.intervalWork) return
+            this.intervalWork = true
+            const rs = await this.receiptService.getAllPending()
+            if(!rs) {
+                this.intervalWork = false
+                return
+            }
+            for(let r of rs){
+                await this.processReceipt(r)
+            }
+            this.intervalWork = false
+
+
+        }, 5000)
         this.working = true
         logger.info("UMKA receipt polling worker started")
     }

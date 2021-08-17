@@ -47,6 +47,15 @@ class ReceiptService {
         return await this.receiptDAO.getRandomPending()
     }
 
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async getAllPending() {
+        return await this.receiptDAO.getAllPending()
+    }
+
     async setStatus(receiptId, status, trx) {
         return await this.receiptDAO.setStatus(receiptId, status, trx)
     }
