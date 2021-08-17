@@ -158,13 +158,14 @@ class FiscalizationWorker {
                 this.intervalWork = false
                 return
             }
-            for(let r of rs){
-                await this.processReceipt(r)
+            const listOfPromises = rs.map(r => this.processReceipt(r))
+            for(const promise of listOfPromises){
+                await promise
             }
             this.intervalWork = false
 
 
-        }, 5000)
+        }, 3000)
         this.working = true
         logger.info("UMKA receipt polling worker started")
     }

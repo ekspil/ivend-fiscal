@@ -68,3 +68,7 @@
 # 1.0.16 - Hotfix
 
 * error fix
+
+# 1.0.17 - Hotfix
+
+* new restart system
