@@ -72,3 +72,7 @@
 # 1.0.17 - Hotfix
 
 * new restart system
+
+# 1.0.18 - Hotfix
+
+* new restart system

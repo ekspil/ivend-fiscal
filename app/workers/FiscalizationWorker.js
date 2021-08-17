@@ -145,7 +145,7 @@ class FiscalizationWorker {
             // logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${JSON.stringify(e.json)}`)
             // await markFailed(this.receiptService, receipt)
         } finally {
-            await this.cacheService.flush(redisProcessingPrefix + receipt.id)
+            //await this.cacheService.flush(redisProcessingPrefix + receipt.id)
         }
     }
 
