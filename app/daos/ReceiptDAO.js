@@ -215,19 +215,12 @@ class ReceiptDAO {
      * @returns {Promise<*>}
      */
     async setStatusNoRepeat(receiptId, status, trx) {
-        const [receipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
+        await DBUtils.getKnex(this.knex, "receipts", trx)
             .where({id: receiptId})
             .update({
                 status,
                 not_repeat: true
             })
-            .returning("*")
-
-        if (!receipt) {
-            return null
-        }
-
-        return new Receipt(receipt)
     }
 }
 

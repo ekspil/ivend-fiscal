@@ -84,3 +84,7 @@
 # 1.0.21 - Hotfix
 
 * new restart system
+
+# 1.0.22 - Hotfix
+
+* new restart system
