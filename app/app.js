@@ -40,7 +40,7 @@ const start = async (port) => {
             password: process.env.POSTGRES_PASSWORD,
             port: process.env.POSTGRES_PORT,
             database: process.env.POSTGRES_DB,
-            ssl: { rejectUnauthorized: false }
+            ssl: false
         }
     })
 

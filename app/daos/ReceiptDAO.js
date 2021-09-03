@@ -13,6 +13,7 @@ class ReceiptDAO {
         this.getById = this.getById.bind(this)
         this.getFirstPending = this.getFirstPending.bind(this)
         this.getAllPending = this.getAllPending.bind(this)
+        this.setErrorToPending = this.setErrorToPending.bind(this)
         this.getRandomPending = this.getRandomPending.bind(this)
         this.setFiscalDataId = this.setFiscalDataId.bind(this)
         this.setStatus = this.setStatus.bind(this)
@@ -130,6 +131,23 @@ class ReceiptDAO {
 
         return receipts.map(receipt => new Receipt(receipt))
     }
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async setErrorToPending() {
+        const lastTime = new Date(new Date().getTime() - 86400000)
+
+
+        await (DBUtils.getKnex(this.knex, "receipts")
+
+            .whereNull("not_repeat"))
+            .andWhere({status: ReceiptStatus.ERROR})
+            .andWhere("created_at", ">", lastTime)
+            .update({status: ReceiptStatus.PENDING})
+
+
+    }
 
     /**
      *
@@ -180,6 +198,28 @@ class ReceiptDAO {
             .where({id: receiptId})
             .update({
                 status
+            })
+            .returning("*")
+
+        if (!receipt) {
+            return null
+        }
+
+        return new Receipt(receipt)
+    }
+    /**
+     *
+     * @param receiptId {number}
+     * @param status {ReceiptStatus}
+     * @param trx
+     * @returns {Promise<*>}
+     */
+    async setStatusNoRepeat(receiptId, status, trx) {
+        const [receipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
+            .where({id: receiptId})
+            .update({
+                status,
+                not_repeat: true
             })
             .returning("*")
 

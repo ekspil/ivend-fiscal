@@ -56,8 +56,22 @@ class ReceiptService {
         return await this.receiptDAO.getAllPending()
     }
 
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async setErrorToPending() {
+        return await this.receiptDAO.setErrorToPending()
+    }
+
     async setStatus(receiptId, status, trx) {
         return await this.receiptDAO.setStatus(receiptId, status, trx)
+    }
+
+
+    async setStatusNoRepeat(receiptId, status, trx) {
+        return await this.receiptDAO.setStatusNoRepeat(receiptId, status, trx)
     }
 
 }

@@ -8,8 +8,11 @@ const logger = require("my-custom-logger")
 const redisProcessingPrefix = "fiscal_worker_processing_receipt_"
 
 //todo test no race condition here
-const markFailed = async (receiptService, receipt) => {
+const markFailed = async (receiptService, receipt, notRepeat) => {
     try {
+        if(notRepeat){
+            await receiptService.setStatusNoRepeat(receipt.id, ReceiptStatus.ERROR)
+        }
         await receiptService.setStatus(receipt.id, ReceiptStatus.ERROR)
     } catch (e1) {
         logger.error(`worker_process_receipt_set_status_failed ${e1}`)
@@ -42,13 +45,13 @@ class FiscalizationWorker {
         }
 
         if (!receipt) {
-            return
+            return "noReceipt"
         }
 
         const isProcessing = await this.cacheService.get(redisProcessingPrefix + receipt.id)
 
         if (isProcessing) {
-            return
+            return "isProcessing"
         }
 
         try {
@@ -114,7 +117,13 @@ class FiscalizationWorker {
         } catch (e) {
             if (e.code === "23505") {
                 //race condition
-                return
+                return "code_23505"
+            }
+            if(e.json && e.json.error && e.json.error.text){
+                if(e.json.error.text.includes("Смена превысила 24 часа")){
+                    logger.error(`worker_process_receipt_error_24hours ${receipt.id}`)
+                    return await markFailed(this.receiptService, receipt, true)
+                }
             }
 
             if (e instanceof UmkaResponseError) {
@@ -128,7 +137,8 @@ class FiscalizationWorker {
                     return await markFailed(this.receiptService, receipt)
                 }
 
-                return logger.error(`worker_process_receipt_umka_bad_response ${receipt.id}, , code: ${e.code}, status: ${e.status}, json: ${JSON.stringify(json)}`)
+                logger.error(`worker_process_receipt_umka_bad_response ${receipt.id}, , code: ${e.code}, status: ${e.status}, json: ${JSON.stringify(json)}`)
+                return "umka_error"
             }
             else {
                 const createDate = receipt.createdAt
@@ -140,11 +150,13 @@ class FiscalizationWorker {
                     return await markFailed(this.receiptService, receipt)
                 }
                 logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${JSON.stringify(e.json)}`)
+                return "rekassa_error"
             }
 
             // logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${JSON.stringify(e.json)}`)
             // await markFailed(this.receiptService, receipt)
         } finally {
+
             //await this.cacheService.flush(redisProcessingPrefix + receipt.id)
         }
     }
@@ -158,14 +170,43 @@ class FiscalizationWorker {
                 this.intervalWork = false
                 return
             }
-            const listOfPromises = rs.map(r => this.processReceipt(r))
-            for(const promise of listOfPromises){
-                await promise
+            let tasks = []
+            let delay = 0
+            for (let r of rs) {
+                const isProcessing = await this.cacheService.get(redisProcessingPrefix + r.id)
+
+                if (isProcessing) {
+                    continue
+                }
+
+                tasks.push(new Promise(async (resolve) => {
+                    delay += 100
+
+                    await new Promise(res => setTimeout(res, delay))
+                    this.processReceipt(r)
+
+                    resolve(r.id + ": send_to_umka")
+                }))
             }
+
+
+
+            //const listOfPromises = rs.map(r => this.processReceipt(r))
+            // for(const promise of tasks){
+            //     await promise
+            // }
+            await Promise.all(tasks)
             this.intervalWork = false
 
 
-        }, 3000)
+        }, 1000)
+
+        this.intervalId = setInterval(async () =>{
+            await this.receiptService.setErrorToPending()
+
+        }, 3000000)
+
+
         this.working = true
         logger.info("UMKA receipt polling worker started")
     }
