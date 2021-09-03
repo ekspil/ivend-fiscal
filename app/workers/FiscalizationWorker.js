@@ -12,6 +12,7 @@ const markFailed = async (receiptService, receipt, notRepeat) => {
     try {
         if(notRepeat){
             await receiptService.setStatusNoRepeat(receipt.id, ReceiptStatus.ERROR)
+            return
         }
         await receiptService.setStatus(receipt.id, ReceiptStatus.ERROR)
     } catch (e1) {
