@@ -92,3 +92,7 @@
 # 1.0.23 - Hotfix
 
 * new restart system
+
+# 1.0.24 - Hotfix
+
+* kkt idle

@@ -6,6 +6,7 @@ const ReceiptStatus = require("../enums/ReceiptStatus")
 const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
 const redisProcessingPrefix = "fiscal_worker_processing_receipt_"
+const redisInWorkPrefix = "fiscal_worker_in_work_receipt_"
 
 //todo test no race condition here
 const markFailed = async (receiptService, receipt, notRepeat) => {
@@ -49,7 +50,13 @@ class FiscalizationWorker {
             return "noReceipt"
         }
 
-        const isProcessing = await this.cacheService.get(redisProcessingPrefix + receipt.id)
+        const isInWork = await this.cacheService.get(redisInWorkPrefix + receipt.kktRegNumber)
+
+        if (!isInWork) {
+            return "inWork"
+        }
+
+        const isProcessing = await this.cacheService.get(redisInWorkPrefix + receipt.id)
 
         if (isProcessing) {
             return "isProcessing"
@@ -57,6 +64,8 @@ class FiscalizationWorker {
 
         try {
             await this.cacheService.set(redisProcessingPrefix + receipt.id, new Date().getTime(), Number(process.env.WORKER_PROCESSING_RECEIPT_CACHE_TIMEOUT_SECONDS))
+
+            await this.cacheService.set(redisInWorkPrefix + receipt.kktRegNumber, new Date().getTime(), 30)
 
             const {id, controllerUid, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber, itemType} = receipt
 
@@ -158,7 +167,7 @@ class FiscalizationWorker {
             // await markFailed(this.receiptService, receipt)
         } finally {
 
-            //await this.cacheService.flush(redisProcessingPrefix + receipt.id)
+            await this.cacheService.flush(redisInWorkPrefix + receipt.kktRegNumber)
         }
     }
 
