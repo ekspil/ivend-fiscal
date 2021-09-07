@@ -52,7 +52,7 @@ class FiscalizationWorker {
 
         const isInWork = await this.cacheService.get(redisInWorkPrefix + receipt.kktRegNumber)
 
-        if (!isInWork) {
+        if (isInWork) {
             return "inWork"
         }
 

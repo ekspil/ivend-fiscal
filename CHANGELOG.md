@@ -96,3 +96,7 @@
 # 1.0.24 - Hotfix
 
 * kkt idle
+
+# 1.0.25 - Hotfix
+
+* kkt idle
