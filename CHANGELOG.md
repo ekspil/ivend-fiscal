@@ -104,3 +104,7 @@
 # 1.0.26 - Hotfix
 
 * kkt status
+
+# 1.0.27 - Hotfix
+
+* hotfix

@@ -24,7 +24,7 @@ const buildDependencies = ({knex, redis}) => {
     const receiptService = new ReceiptService({receiptDAO})
     const cacheService = new CacheService({redis})
     const fiscalService = new FiscalService({receiptDAO, fiscalDataDAO})
-    const receiptController = new ReceiptController({receiptService})
+    const receiptController = new ReceiptController({receiptService, cacheService})
 
     return {receiptController, receiptService, fiscalService, cacheService}
 }
