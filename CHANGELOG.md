@@ -100,3 +100,7 @@
 # 1.0.25 - Hotfix
 
 * kkt idle
+
+# 1.0.26 - Hotfix
+
+* kkt status

@@ -17,6 +17,8 @@ class ReceiptDAO {
         this.getRandomPending = this.getRandomPending.bind(this)
         this.setFiscalDataId = this.setFiscalDataId.bind(this)
         this.setStatus = this.setStatus.bind(this)
+        this.getControllerKktInfo= this.getControllerKktInfo.bind(this)
+        this.getKktInfo = this.getKktInfo.bind(this)
     }
 
 
@@ -113,6 +115,51 @@ class ReceiptDAO {
         }
 
         return new Receipt(receipt)
+    }
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async getControllerKktInfo(controllerUid) {
+        const [receipt] = await (DBUtils.getKnex(this.knex, "receipts")
+            .where({controller_uid: controllerUid, status: ReceiptStatus.SUCCESS})
+            .orderBy("id", "DESC")
+            .select("*")
+            .limit(1))
+
+        if (!receipt) {
+            return null
+        }
+
+        return new Receipt(receipt)
+    }
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async getKktInfo(kktRegNumber) {
+        const [receipt] = await (DBUtils.getKnex(this.knex, "receipts")
+            .where({kkt_reg_number: kktRegNumber, status: ReceiptStatus.SUCCESS})
+            .leftJoin("fiscal_datas", "receipts.fiscal_data_id", "fiscal_datas.id")
+            .select(`receipts.id as receipt_id`)
+            .select(`fiscal_datas.id as fiscal_data_id`)
+            .select(`ext_id`)
+            .select(`fiscal_document_number`)
+            .select(`ext_timestamp`)
+            .select(`kkt_reg_number`)
+            .select(`status`)
+            .select(`receipts.created_at as created_at`)
+            .select(`item_type`)
+            .orderBy("receipts.id", "DESC")
+            .limit(1))
+
+        if (!receipt) {
+            return null
+        }
+
+        return receipt
     }
     /**
      *

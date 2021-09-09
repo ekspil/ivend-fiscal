@@ -7,6 +7,8 @@ const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
 const redisProcessingPrefix = "fiscal_worker_processing_receipt_"
 const redisInWorkPrefix = "fiscal_worker_in_work_receipt_"
+const kktStatusPrefix = "kkt_status_prefix_"
+const controllerKktStatusPrefix = "controller_kkt_status_prefix_"
 
 //todo test no race condition here
 const markFailed = async (receiptService, receipt, notRepeat) => {
@@ -124,6 +126,11 @@ class FiscalizationWorker {
             const diff = new Date() - startDate
 
             logger.debug(`worker_process_receipt_handled processing #${receipt.id} took ${diff} milliseconds`)
+
+
+            await this.cacheService.set(kktStatusPrefix + receipt.kktRegNumber, "OK", 86400)
+            await this.cacheService.set(controllerKktStatusPrefix + receipt.controllerUid, "OK", 86400)
+
         } catch (e) {
             if (e.code === "23505") {
                 //race condition
@@ -144,6 +151,9 @@ class FiscalizationWorker {
 
                 if (expired) {
                     logger.error(`worker_process_receipt_timeout ${receipt.id},  time1:${createDate}, time2:${expireDate}, ${JSON.stringify(e.json)}`)
+
+                    await this.cacheService.set(kktStatusPrefix + receipt.kktRegNumber, "ERROR")
+                    await this.cacheService.set(controllerKktStatusPrefix + receipt.controllerUid, "ERROR")
                     return await markFailed(this.receiptService, receipt)
                 }
 
@@ -157,6 +167,8 @@ class FiscalizationWorker {
 
                 if (expired) {
                     logger.error(`worker_process_receipt_timeout ${receipt.id},  time1:${createDate}, time2:${expireDate}, ${JSON.stringify(e.json)}`)
+                    await this.cacheService.set(kktStatusPrefix + receipt.kktRegNumber, "ERROR")
+                    await this.cacheService.set(controllerKktStatusPrefix + receipt.controllerUid, "ERROR")
                     return await markFailed(this.receiptService, receipt)
                 }
                 logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${JSON.stringify(e.json)}`)

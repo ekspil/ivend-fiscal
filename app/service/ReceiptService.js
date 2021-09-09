@@ -10,6 +10,8 @@ class ReceiptService {
         this.create = this.create.bind(this)
         this.getFirstPending = this.getFirstPending.bind(this)
         this.setStatus = this.setStatus.bind(this)
+        this.getControllerKktInfo = this.getControllerKktInfo.bind(this)
+        this.getKktInfo = this.getKktInfo.bind(this)
     }
 
     /**
@@ -37,6 +39,22 @@ class ReceiptService {
      */
     async getFirstPending() {
         return await this.receiptDAO.getFirstPending()
+    }
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async getKktInfo(kktRegNumber) {
+        return await this.receiptDAO.getKktInfo(kktRegNumber)
+    }
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async getControllerKktInfo(controllerUid) {
+        return await this.receiptDAO.getControllerKktInfo(controllerUid)
     }
 
     /**

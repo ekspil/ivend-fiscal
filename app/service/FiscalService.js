@@ -52,6 +52,7 @@ class FiscalService {
 
             await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
         })
+        return fiscalData
     }
 
     async handleFiscalizationResultRekassa(receipt, result) {
@@ -87,6 +88,8 @@ class FiscalService {
 
             await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
         })
+
+        return fiscalData
     }
 }
 
