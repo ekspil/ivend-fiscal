@@ -58,7 +58,7 @@ class FiscalizationWorker {
             return "inWork"
         }
 
-        const isProcessing = await this.cacheService.get(redisInWorkPrefix + receipt.id)
+        const isProcessing = await this.cacheService.get(redisProcessingPrefix + receipt.id)
 
         if (isProcessing) {
             return "isProcessing"

@@ -108,3 +108,7 @@
 # 1.0.27 - Hotfix
 
 * hotfix
+
+# 1.0.28 - Hotfix
+
+* hotfix
