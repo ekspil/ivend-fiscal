@@ -207,7 +207,7 @@ class FiscalizationWorker {
                     await new Promise(res => setTimeout(res, delay))
                     this.processReceipt(r)
 
-                    resolve(r.id + ": send_to_umka")
+                    resolve(  "worker_process_send_to_umka" + r.id)
                 }))
             }
 
