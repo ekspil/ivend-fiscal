@@ -124,3 +124,7 @@
 # 1.0.31 - Hotfix
 
 * hotfix
+
+# 1.0.32 - Hotfix
+
+* hotfix
