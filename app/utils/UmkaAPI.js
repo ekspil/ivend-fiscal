@@ -16,7 +16,7 @@ let token
  * @returns {Promise<string>}
  */
 const getToken = async () => {
-    const response = await fetchUrl(`https://umka365.ru/kkm-trade/atolpossystem/v4/getToken?login=${process.env.UMKA_LOGIN}&pass=${process.env.UMKA_PASS}`)
+    const response = await fetchUrl(`https://51.77.42.120/kkm-trade/atolpossystem/v4/getToken?login=${process.env.UMKA_LOGIN}&pass=${process.env.UMKA_PASS}`)
 
     switch (response.status) {
         case 200: {
@@ -66,7 +66,7 @@ class UmkaAPI {
             token
         }
 
-        const response = await fetchUrl(`https://umka365.ru/kkm-trade/atolpossystem/v4/${machineKkt || "any"}/sell/`, {
+        const response = await fetchUrl(`https://51.77.42.120/kkm-trade/atolpossystem/v4/${machineKkt || "any"}/sell/`, {
             method: "POST",
             headers,
             body: JSON.stringify(fiscalRequest)
