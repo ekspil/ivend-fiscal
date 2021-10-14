@@ -75,6 +75,7 @@ class UmkaAPI {
         switch (response.status) {
             case 401: {
                 await getToken()
+                logger.error("umka_api_auth_error " + JSON.stringify(fiscalRequest))
                 throw new UmkaNotAuthorized()
             }
             case 200: {
