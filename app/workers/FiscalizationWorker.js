@@ -65,9 +65,9 @@ class FiscalizationWorker {
         }
 
         try {
-            await this.cacheService.set(redisProcessingPrefix + receipt.id, new Date().getTime(), Number(process.env.WORKER_PROCESSING_RECEIPT_CACHE_TIMEOUT_SECONDS))
+            await this.cacheService.set(redisProcessingPrefix + receipt.id, new Date().getTime(), 3600)
 
-            await this.cacheService.set(redisInWorkPrefix + receipt.kktRegNumber, new Date().getTime(), 30)
+            await this.cacheService.set(redisInWorkPrefix + receipt.kktRegNumber, new Date().getTime(), 3600)
 
             const {id, controllerUid, email, sno, inn, place, itemName, itemPrice, paymentType, createdAt, kktRegNumber, itemType} = receipt
 
@@ -127,11 +127,17 @@ class FiscalizationWorker {
 
             logger.debug(`worker_process_receipt_handled processing #${receipt.id} took ${diff} milliseconds`)
 
+            await this.cacheService.set(redisInWorkPrefix + receipt.kktRegNumber, "", 1)
+
 
             await this.cacheService.set(kktStatusPrefix + receipt.kktRegNumber, "OK", 86400)
             await this.cacheService.set(controllerKktStatusPrefix + receipt.controllerUid, "OK", 86400)
 
         } catch (e) {
+
+            await this.cacheService.set(redisProcessingPrefix + receipt.id, new Date().getTime(), Number(process.env.WORKER_PROCESSING_RECEIPT_CACHE_TIMEOUT_SECONDS))
+            await this.cacheService.set(redisInWorkPrefix + receipt.kktRegNumber, new Date().getTime(), 5)
+
             if (e.code === "23505") {
                 //race condition
                 return "code_23505"
