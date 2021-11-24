@@ -12,6 +12,7 @@ class ReceiptService {
         this.setStatus = this.setStatus.bind(this)
         this.getControllerKktInfo = this.getControllerKktInfo.bind(this)
         this.getKktInfo = this.getKktInfo.bind(this)
+        this.getStatuses = this.getStatuses.bind(this)
     }
 
     /**
@@ -23,6 +24,25 @@ class ReceiptService {
         // todo Validate
 
         return await this.receiptDAO.create(receipt)
+    }
+
+    /**
+     *
+     * @param receipt {Receipt}
+     * @returns {Promise<Receipt>}
+     */
+    async getStatuses(ids) {
+        // todo Validate
+
+        const receipts = await this.receiptDAO.getStatuses(ids)
+        if(!receipts) return []
+        const statuses = receipts.map(r => {
+            return {
+                id: r.id,
+                status: r.status
+            }
+        })
+        return statuses
     }
 
     /**

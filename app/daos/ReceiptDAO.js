@@ -182,6 +182,25 @@ class ReceiptDAO {
      *
      * @returns {Promise<Receipt>}
      */
+    async getStatuses(ids) {
+
+        const Ids = ids.filter(i => i)
+        const receipts = await (DBUtils.getKnex(this.knex, "receipts")
+            .select("*")
+            .whereIn("id", Ids)
+            .orderBy("id", "desc"))
+
+
+        if(!receipts || !receipts.length) {
+            return null
+        }
+
+        return receipts.map(receipt => new Receipt(receipt))
+    }
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
     async setErrorToPending() {
         const lastTime = new Date(new Date().getTime() - 86400000)
 
