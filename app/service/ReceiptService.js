@@ -13,6 +13,7 @@ class ReceiptService {
         this.getControllerKktInfo = this.getControllerKktInfo.bind(this)
         this.getKktInfo = this.getKktInfo.bind(this)
         this.getStatuses = this.getStatuses.bind(this)
+        this.resend = this.resend.bind(this)
     }
 
     /**
@@ -51,6 +52,14 @@ class ReceiptService {
      */
     async getById(receiptId) {
         return await this.receiptDAO.getById(receiptId)
+    }
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async resend(receiptId) {
+        return await this.receiptDAO.resend(receiptId)
     }
 
     /**

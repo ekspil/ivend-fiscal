@@ -288,6 +288,19 @@ class ReceiptDAO {
                 not_repeat: true
             })
     }
+    /**
+     *
+     * @param receiptId {number}
+     * @returns {Promise<*>}
+     */
+    async resend(receiptId) {
+        await DBUtils.getKnex(this.knex, "receipts")
+            .where({id: receiptId, status: ReceiptStatus.ERROR})
+            .update({
+                status: ReceiptStatus.PENDING,
+                created_at: new Date()
+            })
+    }
 }
 
 module.exports = ReceiptDAO

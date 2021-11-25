@@ -25,6 +25,7 @@ class ReceiptController {
         this.getControllerKktInfo = this.getControllerKktInfo.bind(this)
         this.getKktInfo = this.getKktInfo.bind(this)
         this.getStatuses = this.getStatuses.bind(this)
+        this.resend = this.resend.bind(this)
     }
 
     async createReceipt(request) {
@@ -42,6 +43,14 @@ class ReceiptController {
         const statuses = await this.receiptService.getStatuses(request.body)
 
         return statuses
+    }
+
+
+    async resend(request) {
+
+        const result = await this.receiptService.resend(request.params.id)
+
+        return result
     }
 
     async createReceiptRekassa(request) {
