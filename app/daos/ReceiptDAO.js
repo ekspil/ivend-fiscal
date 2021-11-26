@@ -287,6 +287,7 @@ class ReceiptDAO {
                 status,
                 not_repeat: true
             })
+
     }
     /**
      *
@@ -300,6 +301,7 @@ class ReceiptDAO {
                 status: ReceiptStatus.PENDING,
                 created_at: new Date()
             })
+        return true
     }
 }
 

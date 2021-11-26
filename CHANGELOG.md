@@ -136,3 +136,7 @@
 # 1.0.34 - Hotfix
 
 * resend
+
+# 1.0.35 - Hotfix
+
+* resend
