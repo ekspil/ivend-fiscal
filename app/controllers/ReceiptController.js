@@ -19,6 +19,7 @@ class ReceiptController {
 
         this.createReceipt = this.createReceipt.bind(this)
         this.createReceiptRekassa = this.createReceiptRekassa.bind(this)
+        this.createReceiptTelemedia = this.createReceiptTelemedia.bind(this)
         this.getReceiptById = this.getReceiptById.bind(this)
         this.getControllerKktStatus = this.getControllerKktStatus.bind(this)
         this.getKktStatus = this.getKktStatus.bind(this)
@@ -54,6 +55,16 @@ class ReceiptController {
     }
 
     async createReceiptRekassa(request) {
+        const receiptDTO = new ReceiptDTO(request.body)
+
+        const receipt = await this.receiptService.create(receiptDTO)
+
+        logger.debug(`created_receipt ${JSON.stringify(receipt)}`)
+
+        return new ReceiptDTO(receipt)
+    }
+
+    async createReceiptTelemedia(request) {
         const receiptDTO = new ReceiptDTO(request.body)
 
         const receipt = await this.receiptService.create(receiptDTO)

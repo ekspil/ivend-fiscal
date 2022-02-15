@@ -1,7 +1,9 @@
 const FiscalRequest = require("../models/FiscalRequest")
 const FiscalRequestRekassa = require("../models/FiscalRequestRekassa")
+const FiscalRequestTelemedia = require("../models/FiscalRequestTelemedia")
 const UmkaAPI = require("../utils/UmkaAPI")
 const RekassaAPI = require("../utils/RekassaAPI")
+const TelemediaAPI = require("../utils/TelemediaAPI")
 const ReceiptStatus = require("../enums/ReceiptStatus")
 const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
@@ -77,7 +79,7 @@ class FiscalizationWorker {
 
             let fiscalRequest
             let result
-            if(!receipt.rekassa_number){
+            if(receipt.kktProvider === "umka"){
                 fiscalRequest = new FiscalRequest({
                     external_id: extId,
                     email,
@@ -98,7 +100,7 @@ class FiscalizationWorker {
                 await this.fiscalService.handleFiscalizationResult(receipt, result.uuid)
 
             }
-            if(receipt.rekassa_number){
+            if(receipt.kktProvider === "rekassa"){
                 fiscalRequest = new FiscalRequestRekassa({
                     external_id: extId,
                     email,
@@ -116,6 +118,28 @@ class FiscalizationWorker {
                 logger.debug(`worker_process_receipt_rekassa_replied ${result.uuid}`)
 
                 await this.fiscalService.handleFiscalizationResultRekassa(receipt, result)
+
+            }
+            if(receipt.kktProvider === "telemedia"){
+                fiscalRequest = new FiscalRequestTelemedia({
+                    external_id: extId,
+                    email,
+                    sno,
+                    inn,
+                    place,
+                    itemName,
+                    itemPrice,
+                    paymentType,
+                    timestamp: createdAt,
+                    itemType,
+                    kassaId: receipt.rekassa_kkt_id,
+                    sectionId: receipt.rekassa_number
+                })
+
+                result = await TelemediaAPI.registerSale(fiscalRequest, receipt, this.cacheService)
+                logger.debug(`worker_process_receipt_telemedia_replied ${result.uuid}`)
+
+                await this.fiscalService.handleFiscalizationResultTelemedia(receipt, result)
 
             }
 
@@ -191,40 +215,52 @@ class FiscalizationWorker {
 
     async start() {
         this.intervalId = setInterval(async () =>{
-            if (this.intervalWork) return
-            this.intervalWork = true
-            const rs = await this.receiptService.getAllPending()
-            if(!rs) {
-                this.intervalWork = false
-                return
-            }
-            let tasks = []
-            let delay = 0
-            for (let r of rs) {
-                const isProcessing = await this.cacheService.get(redisProcessingPrefix + r.id)
+            try{
 
-                if (isProcessing) {
-                    continue
+                if (this.intervalWork) return
+                this.intervalWork = true
+                const rs = await this.receiptService.getAllPending()
+                if(!rs) {
+                    this.intervalWork = false
+                    return
+                }
+                let tasks = []
+                let delay = 0
+                for (let r of rs) {
+                    const isProcessing = await this.cacheService.get(redisProcessingPrefix + r.id)
+
+                    if (isProcessing) {
+                        continue
+                    }
+
+                    tasks.push(new Promise(async (resolve) => {
+                        delay += 100
+
+                        await new Promise(res => setTimeout(res, delay))
+                        this.processReceipt(r)
+
+                        resolve(  "worker_process_send_to_umka" + r.id)
+                    }))
                 }
 
-                tasks.push(new Promise(async (resolve) => {
-                    delay += 100
 
-                    await new Promise(res => setTimeout(res, delay))
-                    this.processReceipt(r)
 
-                    resolve(  "worker_process_send_to_umka" + r.id)
-                }))
+                //const listOfPromises = rs.map(r => this.processReceipt(r))
+                // for(const promise of tasks){
+                //     await promise
+                // }
+                await Promise.all(tasks)
+                this.intervalWork = false
+
             }
-
-
-
-            //const listOfPromises = rs.map(r => this.processReceipt(r))
-            // for(const promise of tasks){
-            //     await promise
-            // }
-            await Promise.all(tasks)
-            this.intervalWork = false
+            catch (e) {
+                logger.info("fiscal_super_error_")
+                logger.info("fiscal_super_error_message: " + e.message)
+                this.intervalWork = false
+            }
+            finally {
+                this.intervalWork = false
+            }
 
 
         }, 1000)

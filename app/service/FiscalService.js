@@ -17,6 +17,7 @@ class FiscalService {
 
         this.handleFiscalizationResult = this.handleFiscalizationResult.bind(this)
         this.handleFiscalizationResultRekassa = this.handleFiscalizationResultRekassa.bind(this)
+        this.handleFiscalizationResultTelemedia = this.handleFiscalizationResultTelemedia.bind(this)
     }
 
     async handleFiscalizationResult(receipt, uuid) {
@@ -77,6 +78,41 @@ class FiscalService {
         fiscalData.fiscalDocumentNumber = fiscal_document_number
         fiscalData.ecrRegistrationNumber = ecr_registration_number
         fiscalData.fiscalDocumentAttribute = fiscal_document_attribute
+        fiscalData.extTimestamp = new Date(timestamp)
+        fiscalData.createdAt = new Date()
+
+
+        await this.receiptDAO.knex.transaction(async (trx) => {
+            const {id} = await this.fiscalDataDAO.create(fiscalData, trx)
+
+            await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
+
+            await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
+        })
+
+        return fiscalData
+    }
+    async handleFiscalizationResultTelemedia(receipt, result) {
+        //const report = await RekassaAPI.getReport(result, receipt)
+
+        const {created_at, total_amount, link, uuid, check_number, shift, check_type} = result
+
+        let timestamp = created_at.split(" ")
+        timestamp[0] = timestamp[0].split(".").reverse().join("-")
+        timestamp = timestamp.join("T") + ":00"
+
+        const fiscalData = new FiscalData({})
+
+        fiscalData.extId = uuid
+        fiscalData.totalAmount = total_amount
+        fiscalData.fnsSite = link
+        fiscalData.fnNumber = check_number
+        fiscalData.shiftNumber = shift
+        fiscalData.receiptDatetime = new Date(timestamp)
+        fiscalData.fiscalReceiptNumber = uuid
+        fiscalData.fiscalDocumentNumber = check_number
+        fiscalData.ecrRegistrationNumber = link
+        fiscalData.fiscalDocumentAttribute = check_type
         fiscalData.extTimestamp = new Date(timestamp)
         fiscalData.createdAt = new Date()
 

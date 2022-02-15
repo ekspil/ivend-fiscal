@@ -1,7 +1,7 @@
 class Receipt {
 
 
-    constructor({id, controllerUid, controller_uid, email, sno, inn, place, itemName, item_name, itemType, item_type, itemPrice, item_price, paymentType, payment_type, status, fiscalData, createdAt, created_at, kktRegNumber, kkt_reg_number, rekassa_number, rekassa_password, rekassa_kkt_id}) {
+    constructor({id, controllerUid, controller_uid, email, sno, inn, place, itemName, item_name, itemType, item_type, itemPrice, item_price, paymentType, payment_type, status, fiscalData, createdAt, created_at, kktRegNumber, kkt_reg_number, rekassa_number, rekassa_password, rekassa_kkt_id, kkt_provider, kktProvider}) {
         this.id = id
         this.controllerUid = controllerUid || controller_uid
         this.email = email
@@ -19,6 +19,7 @@ class Receipt {
         this.rekassa_password = rekassa_password
         this.rekassa_kkt_id = rekassa_kkt_id
         this.createdAt = createdAt || created_at
+        this.kktProvider = kkt_provider || kktProvider
     }
 
 }
