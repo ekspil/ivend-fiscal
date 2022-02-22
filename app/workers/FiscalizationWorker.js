@@ -79,7 +79,7 @@ class FiscalizationWorker {
 
             let fiscalRequest
             let result
-            if(receipt.kktProvider === "umka"){
+            if(receipt.kktProvider === "umka" || !receipt.kktProvider){
                 fiscalRequest = new FiscalRequest({
                     external_id: extId,
                     email,
