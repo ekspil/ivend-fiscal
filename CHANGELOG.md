@@ -144,3 +144,7 @@
 # 1.0.36 - Hotfix
 
 * hotfix
+
+# 1.0.37 - Hotfix
+
+* hotfix
