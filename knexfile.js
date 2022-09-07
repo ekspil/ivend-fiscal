@@ -6,7 +6,14 @@ module.exports = {
             user: process.env.POSTGRES_USER,
             password: process.env.POSTGRES_PASSWORD,
             host: process.env.POSTGRES_HOST,
-            port: process.env.POSTGRES_PORT
+            port: process.env.POSTGRES_PORT,
+            ssl:true,
+            dialectOptions:{
+                ssl:{
+                    require:true,
+                    rejectUnauthorized: false
+                }
+            }
         },
         pool: {
             min: 2,
@@ -23,7 +30,14 @@ module.exports = {
             user: process.env.POSTGRES_USER,
             password: process.env.POSTGRES_PASSWORD,
             host: process.env.POSTGRES_HOST,
-            port: process.env.POSTGRES_PORT
+            port: process.env.POSTGRES_PORT,
+            ssl:true,
+            dialectOptions:{
+                ssl:{
+                    require:true,
+                    rejectUnauthorized: false
+                }
+            }
         },
         pool: {
             min: 2,
@@ -40,7 +54,14 @@ module.exports = {
             user: process.env.POSTGRES_USER,
             password: process.env.POSTGRES_PASSWORD,
             host: process.env.POSTGRES_HOST,
-            port: process.env.POSTGRES_PORT
+            port: process.env.POSTGRES_PORT,
+            ssl:true,
+            dialectOptions:{
+                ssl:{
+                    require:true,
+                    rejectUnauthorized: false
+                }
+            }
         },
         pool: {
             min: 2,
