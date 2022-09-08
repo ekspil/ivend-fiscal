@@ -28,7 +28,7 @@ class ReceiptDAO {
      * @returns {Promise<Receipt>}
      */
     async create(receipt, trx) {
-        const {email, controllerUid, sno, inn, place, itemName, itemType, itemPrice, paymentType, kktRegNumber, rekassa_password, rekassa_number, rekassa_kkt_id, kkt_provider} = receipt
+        const {id, email, controllerUid, sno, inn, place, itemName, itemType, itemPrice, paymentType, kktRegNumber, rekassa_password, rekassa_number, rekassa_kkt_id, kkt_provider} = receipt
 
         const [createdReceipt] = await DBUtils.getKnex(this.knex, "receipts", trx)
             .returning("*")
@@ -48,7 +48,8 @@ class ReceiptDAO {
                 item_type: itemType,
                 payment_type: paymentType,
                 status: ReceiptStatus.PENDING,
-                created_at: new Date()
+                created_at: new Date(),
+                sale_id: id
             })
 
         return new Receipt(createdReceipt)

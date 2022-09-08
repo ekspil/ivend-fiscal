@@ -30,7 +30,7 @@ class ReceiptService {
     /**
      *
      * @param receipt {Receipt}
-     * @returns {Promise<Receipt>}
+     * @returns {<Receipt>}
      */
     async getStatuses(ids) {
         // todo Validate
