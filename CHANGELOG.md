@@ -148,3 +148,7 @@
 # 1.0.37 - Hotfix
 
 * hotfix
+
+# 1.0.38 - Hotfix
+
+* sale_id_check

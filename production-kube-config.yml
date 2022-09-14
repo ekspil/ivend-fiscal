@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: fiscal
-        image: cr.yandex/crpfb8t478v3of681kce/fiscal:1.0.37
+        image: cr.yandex/crpfb8t478v3of681kce/fiscal:1.0.38
         imagePullPolicy: Always
         ports:
           - containerPort: 5500
