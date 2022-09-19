@@ -173,7 +173,8 @@ class ReceiptDAO {
         const receipts = await (DBUtils.getKnex(this.knex, "receipts")
             .select("*")
             .where({status: ReceiptStatus.PENDING})
-            .orderBy("id", "desc"))
+            .orderBy("id", "desc")
+            .limit(100))
 
 
         if(!receipts || !receipts.length) {

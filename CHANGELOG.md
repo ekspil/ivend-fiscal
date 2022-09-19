@@ -152,3 +152,7 @@
 # 1.0.38 - Hotfix
 
 * sale_id_check
+
+# 1.0.39 - Hotfix
+
+* set limit 100 on getAllPending
