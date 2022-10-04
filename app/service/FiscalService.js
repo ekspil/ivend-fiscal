@@ -3,6 +3,7 @@ const ReceiptStatus = require("../enums/ReceiptStatus")
 const UmkaAPI = require("../utils/UmkaAPI")
 const RekassaAPI = require("../utils/RekassaAPI")
 const DateUtils = require("../utils/DateUtils")
+const logger = require("my-custom-logger")
 
 class FiscalService {
 
@@ -45,14 +46,43 @@ class FiscalService {
         fiscalData.extTimestamp = new Date(timestamp)
         fiscalData.createdAt = new Date()
 
+        let operation = false
 
-        await this.receiptDAO.knex.transaction(async (trx) => {
-            const {id} = await this.fiscalDataDAO.create(fiscalData, trx)
+        try {
+            await this.receiptDAO.knex.transaction(async (trx) => {
 
-            await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
+                const {id} = await this.fiscalDataDAO.create(fiscalData, trx)
 
-            await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
-        })
+                await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
+
+                await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
+                operation = true
+            })
+        }
+        catch (e) {
+            logger.debug(`FISCAL_DB_INSERT_ERROR ${e.message} ${JSON.stringify(fiscalData)}`)
+        }
+
+        if(!operation){
+
+            try {
+                await this.receiptDAO.knex.transaction(async (trx) => {
+
+                    const {id} = await this.fiscalDataDAO.findByExt(uuid, trx)
+
+                    await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
+
+                    await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
+                })
+            }
+            catch (e) {
+                logger.debug(`FISCAL_DB_SELECT_ERROR ${e.message} ${JSON.stringify(fiscalData)}`)
+            }
+
+        }
+
+
+
         return fiscalData
     }
 

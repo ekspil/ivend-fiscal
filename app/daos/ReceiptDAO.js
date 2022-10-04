@@ -207,7 +207,7 @@ class ReceiptDAO {
      * @returns {Promise<Receipt>}
      */
     async setErrorToPending() {
-        const lastTime = new Date(new Date().getTime() - 86400000)
+        const lastTime = new Date(new Date().getTime() - 66400000)
 
 
         await (DBUtils.getKnex(this.knex, "receipts")

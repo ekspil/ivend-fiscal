@@ -152,7 +152,7 @@ class FiscalizationWorker {
             logger.debug(`worker_process_receipt_handled processing #${receipt.id} took ${diff} milliseconds`)
 
             await this.cacheService.set(redisInWorkPrefix + receipt.kktRegNumber, "", 1)
-
+            await this.cacheService.set(redisProcessingPrefix + receipt.id, "", 1)
 
             await this.cacheService.set(kktStatusPrefix + receipt.kktRegNumber, "OK", 86400)
             await this.cacheService.set(controllerKktStatusPrefix + receipt.controllerUid, "OK", 86400)
@@ -237,7 +237,7 @@ class FiscalizationWorker {
                         delay += 100
 
                         await new Promise(res => setTimeout(res, delay))
-                        this.processReceipt(r)
+                        await this.processReceipt(r)
 
                         resolve(  "worker_process_send_to_umka" + r.id)
                     }))

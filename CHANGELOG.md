@@ -156,3 +156,7 @@
 # 1.0.39 - Hotfix
 
 * set limit 100 on getAllPending
+
+# 1.0.40 - Hotfix
+
+* fix double result write

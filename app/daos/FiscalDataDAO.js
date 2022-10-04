@@ -41,6 +41,15 @@ class FiscalDataDAO {
         return new FiscalData(createdFiscalData)
     }
 
+    async findByExt(extId, trx) {
+        const [createdFiscalData] = await DBUtils.getKnex(this.knex, "fiscal_datas", trx)
+            .select("ext_id", "id", "total_amount", "fns_site", "fn_number", "shift_number", "receipt_date_time", "fiscal_receipt_number", "fiscal_document_number", "ecr_registration_number", "fiscal_document_attribute", "ext_timestamp", "created_at")
+            .where("ext_id", extId)
+            .transacting(trx)
+
+        return new FiscalData(createdFiscalData)
+    }
+
 
 }
 
