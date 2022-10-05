@@ -168,3 +168,7 @@
 # 1.0.41 - Hotfix
 
 * add errors in no-repeat list
+
+# 1.0.43 - Hotfix
+
+* add errors in no-repeat list
