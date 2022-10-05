@@ -199,6 +199,10 @@ class FiscalizationWorker {
                     logger.error(`worker_process_receipt_error_connection_refused ${receipt.id}`)
                     return await markFailed(this.receiptService, receipt, false)
                 }
+                if(e.json.error.text.includes("error:408")){
+                    logger.error(`worker_process_receipt_error_request_timeout ${receipt.id}`)
+                    return await markFailed(this.receiptService, receipt, false)
+                }
             }
 
             if (e instanceof UmkaResponseError) {
