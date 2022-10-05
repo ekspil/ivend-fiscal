@@ -246,7 +246,7 @@ class FiscalizationWorker {
                     }
 
                     tasks.push(new Promise(async (resolve) => {
-                        delay += 100
+                        delay += 50
 
                         await new Promise(res => setTimeout(res, delay))
                         await this.processReceipt(r)
