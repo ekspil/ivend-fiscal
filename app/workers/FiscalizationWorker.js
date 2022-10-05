@@ -179,8 +179,20 @@ class FiscalizationWorker {
                     logger.error(`worker_process_receipt_error_KKT_WRONG_STATUS ${receipt.id}`)
                     return await markFailed(this.receiptService, receipt, true)
                 }
+                if(e.json.error.text.includes("error:212")){
+                    logger.error(`worker_process_receipt_error_FN_WRONG_STATUS ${receipt.id}`)
+                    return await markFailed(this.receiptService, receipt, true)
+                }
+                if(e.json.error.text.includes("error:451")){
+                    logger.error(`worker_process_receipt_error_unsupported_juristic ${receipt.id}`)
+                    return await markFailed(this.receiptService, receipt, true)
+                }
                 if(e.json.error.text.includes("Время ожидания соединения истекло")){
                     logger.error(`worker_process_receipt_error_KKT_connection_error ${receipt.id}`)
+                    return await markFailed(this.receiptService, receipt, false)
+                }
+                if(e.json.error.text.includes("Connection refused")){
+                    logger.error(`worker_process_receipt_error_connection_refused ${receipt.id}`)
                     return await markFailed(this.receiptService, receipt, false)
                 }
             }
