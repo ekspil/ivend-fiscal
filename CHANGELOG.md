@@ -160,3 +160,7 @@
 # 1.0.40 - Hotfix
 
 * fix double result write
+
+# 1.0.41 - Hotfix
+
+* no repeat if some errors

@@ -20,8 +20,8 @@ const markFailed = async (receiptService, receipt, notRepeat) => {
             return
         }
         await receiptService.setStatus(receipt.id, ReceiptStatus.ERROR)
-    } catch (e1) {
-        logger.error(`worker_process_receipt_set_status_failed ${e1}`)
+    } catch (e) {
+        logger.error(`worker_process_receipt_set_status_failed ${e}`)
     }
 }
 
@@ -170,6 +170,18 @@ class FiscalizationWorker {
                 if(e.json.error.text.includes("Смена превысила 24 часа")){
                     logger.error(`worker_process_receipt_error_24hours ${receipt.id}`)
                     return await markFailed(this.receiptService, receipt, true)
+                }
+                if(e.json.error.text.includes("error:235")){
+                    logger.error(`worker_process_receipt_error_FN_expire ${receipt.id}`)
+                    return await markFailed(this.receiptService, receipt, true)
+                }
+                if(e.json.error.text.includes("error:102")){
+                    logger.error(`worker_process_receipt_error_KKT_WRONG_STATUS ${receipt.id}`)
+                    return await markFailed(this.receiptService, receipt, true)
+                }
+                if(e.json.error.text.includes("Время ожидания соединения истекло")){
+                    logger.error(`worker_process_receipt_error_KKT_connection_error ${receipt.id}`)
+                    return await markFailed(this.receiptService, receipt, false)
                 }
             }
 
