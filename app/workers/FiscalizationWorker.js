@@ -1,9 +1,11 @@
 const FiscalRequest = require("../models/FiscalRequest")
+const FiscalRequestUmka = require("../models/FiscalRequestUmka")
 const FiscalRequestRekassa = require("../models/FiscalRequestRekassa")
 const FiscalRequestTelemedia = require("../models/FiscalRequestTelemedia")
 const UmkaAPI = require("../utils/UmkaAPI")
 const RekassaAPI = require("../utils/RekassaAPI")
 const TelemediaAPI = require("../utils/TelemediaAPI")
+const UmkaNewAPI = require("../utils/UmkaNewAPI")
 const ReceiptStatus = require("../enums/ReceiptStatus")
 const UmkaResponseError = require("../errors/UmkaResponseError")
 const logger = require("my-custom-logger")
@@ -118,6 +120,26 @@ class FiscalizationWorker {
                 logger.debug(`worker_process_receipt_rekassa_replied ${result.uuid}`)
 
                 await this.fiscalService.handleFiscalizationResultRekassa(receipt, result)
+
+            }
+            if(receipt.kktProvider === "umka_new"){
+                fiscalRequest = new FiscalRequestUmka({
+                    external_id: extId,
+                    email,
+                    sno,
+                    inn,
+                    place,
+                    itemName,
+                    itemPrice,
+                    paymentType,
+                    timestamp: createdAt,
+                    itemType
+                })
+
+                result = await UmkaNewAPI.registerSale(kktRegNumber, fiscalRequest)
+                logger.debug(`worker_process_receipt_umka_new_replied ${result.externalId}`)
+
+                await this.fiscalService.setWaitingStatusUmka(receipt)
 
             }
             if(receipt.kktProvider === "telemedia"){
@@ -298,9 +320,31 @@ class FiscalizationWorker {
         }, 1000)
 
         this.intervalId = setInterval(async () =>{
-            await this.receiptService.setErrorToPending()
+            try{
+
+                await this.receiptService.setErrorToPending()
+
+            }catch (e) {
+                logger.info(`fiscal_super_error_setErrorToPending ${e.message}`)
+            }
 
         }, 3000000)
+
+        this.intervalId = setInterval(async () =>{
+            try{
+
+                const rs = await this.receiptService.getAllWaiting()
+                if(!rs) {
+                    return
+                }
+                await this.fiscalService.handleFiscalizationResultUmka(rs)
+
+
+            }catch (e) {
+                logger.info(`fiscal_super_error_setErrorToPending ${e.message}`)
+            }
+
+        }, 1000)
 
 
         this.working = true

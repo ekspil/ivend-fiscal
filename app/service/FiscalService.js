@@ -1,6 +1,7 @@
 const FiscalData = require("../models/domain/FiscalData")
 const ReceiptStatus = require("../enums/ReceiptStatus")
 const UmkaAPI = require("../utils/UmkaAPI")
+const UmkaNewAPI = require("../utils/UmkaNewAPI")
 const RekassaAPI = require("../utils/RekassaAPI")
 const DateUtils = require("../utils/DateUtils")
 const logger = require("my-custom-logger")
@@ -84,6 +85,102 @@ class FiscalService {
 
 
         return fiscalData
+    }
+    async handleFiscalizationResultUmka(receipts) {
+        const reports = await UmkaNewAPI.getReport(receipts)
+
+        for (let receipt of receipts){
+            const {id, controllerUid} = receipt
+
+            const externalId = `IVEND-receipt-${id}-${controllerUid}`
+
+            const report = reports.find(it => it.externalId === externalId)
+            if(!report) continue
+            if(report.state === "waiting") continue
+            if(report.state !== "success"){
+                await this.receiptDAO.knex.transaction(async (trx) => {
+                    await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.ERROR, trx)
+                })
+                continue
+
+            }
+
+
+            const {fisc} = report
+
+            const {
+                total, fnsSite, fnNumber, shiftNumber, receiptDatetime, fiscalReceiptNumber,
+                fiscalDocumentNumber, ecrRegistrationNumber, fiscalDocumentAttribute
+            } = fisc
+
+            const fiscalData = new FiscalData({})
+
+            fiscalData.extId = externalId
+            fiscalData.totalAmount = total
+            fiscalData.fnsSite = fnsSite
+            fiscalData.fnNumber = fnNumber
+            fiscalData.shiftNumber = shiftNumber
+            fiscalData.receiptDatetime = new Date(receiptDatetime),
+            fiscalData.fiscalReceiptNumber = fiscalReceiptNumber
+            fiscalData.fiscalDocumentNumber = fiscalDocumentNumber
+            fiscalData.ecrRegistrationNumber = ecrRegistrationNumber
+            fiscalData.fiscalDocumentAttribute = fiscalDocumentAttribute
+            fiscalData.extTimestamp = new Date(receiptDatetime)
+            fiscalData.createdAt = new Date()
+
+            let operation = false
+
+            try {
+                await this.receiptDAO.knex.transaction(async (trx) => {
+
+                    const {id} = await this.fiscalDataDAO.create(fiscalData, trx)
+
+                    await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
+
+                    await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
+                    operation = true
+                })
+            }
+            catch (e) {
+                logger.debug(`FISCAL_DB_INSERT_ERROR ${e.message} ${JSON.stringify(fiscalData)}`)
+            }
+
+            if(!operation){
+
+                try {
+                    await this.receiptDAO.knex.transaction(async (trx) => {
+
+                        const {id} = await this.fiscalDataDAO.findByExt(externalId, trx)
+
+                        await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
+
+                        await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
+                    })
+                }
+                catch (e) {
+                    logger.debug(`FISCAL_DB_SELECT_ERROR ${e.message} ${JSON.stringify(fiscalData)}`)
+                }
+
+            }
+
+        }
+
+    }
+    async setWaitingStatusUmka(receipt) {
+
+        try {
+            await this.receiptDAO.knex.transaction(async (trx) => {
+
+                await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.WAITING, trx)
+            })
+        }
+        catch (e) {
+            logger.debug(`FISCAL_SET_STATUS_WAITING_ERROR_${receipt.id} ${e.message} `)
+        }
+
+
+
+        return true
     }
 
     async handleFiscalizationResultRekassa(receipt, result) {

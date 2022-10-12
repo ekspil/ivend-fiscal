@@ -108,6 +108,15 @@ class ReceiptService {
      *
      * @returns {Promise<Receipt>}
      */
+    async getAllWaiting() {
+        return await this.receiptDAO.getAllWaiting()
+    }
+
+
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
     async setErrorToPending() {
         return await this.receiptDAO.setErrorToPending()
     }

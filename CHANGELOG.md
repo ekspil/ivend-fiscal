@@ -172,3 +172,7 @@
 # 1.0.44 - Hotfix
 
 * add errors in no-repeat list
+
+# 1.0.45 - RELEASE
+
+* add new umka api

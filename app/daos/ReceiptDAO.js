@@ -13,6 +13,7 @@ class ReceiptDAO {
         this.getById = this.getById.bind(this)
         this.getFirstPending = this.getFirstPending.bind(this)
         this.getAllPending = this.getAllPending.bind(this)
+        this.getAllWaiting = this.getAllWaiting.bind(this)
         this.setErrorToPending = this.setErrorToPending.bind(this)
         this.getRandomPending = this.getRandomPending.bind(this)
         this.setFiscalDataId = this.setFiscalDataId.bind(this)
@@ -174,6 +175,30 @@ class ReceiptDAO {
             .select("*")
             .where({status: ReceiptStatus.PENDING})
             .orderBy("id", "desc")
+            .limit(100))
+
+
+        if(!receipts || !receipts.length) {
+            return null
+        }
+
+        return receipts.map(receipt => new Receipt(receipt))
+    }
+    /**
+     *
+     * @returns {Promise<Receipt>}
+     */
+    async getAllWaiting() {
+        const now = (new Date()).getTime()
+        const date = (new Date(now - 5000)).toISOString()
+        const receipts = await (DBUtils.getKnex(this.knex, "receipts")
+            .select("*")
+            .where({
+                status: ReceiptStatus.WAITING,
+                kkt_provider: "umka_new"
+            })
+            .andWhere("created_at", "<", date)
+            .orderBy("id", "asc")
             .limit(100))
 
 
