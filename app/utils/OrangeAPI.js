@@ -2,23 +2,23 @@
 
 const fetch = require("node-fetch")
 const logger = require("my-custom-logger")
-//const path = require("path")
+const path = require("path")
 const fs = require("fs")
 const https = require("https")
 
 
 var rs = require("jsrsasign")
 var rsu = require("jsrsasign-util")
-var pem = rsu.readFile("ivend_prv.pem")
+var pem = rsu.readFile(path.resolve(__dirname, "./ivend_prv.pem"))
 var prvKey = rs.KEYUTIL.getKey(pem)
 
 
 const cert = fs.readFileSync(
-    "7805714120.crt",
+    path.resolve(__dirname, "./7805714120.crt"),
     `utf-8`,
 )
 const key = fs.readFileSync(
-    "7805714120.key",
+    path.resolve(__dirname, "./7805714120.key"),
     "utf-8",
 )
 

@@ -176,3 +176,7 @@
 # 1.0.45 - RELEASE
 
 * add new umka api
+
+# 1.0.47 - RELEASE
+
+* add OrangeData integration
