@@ -194,8 +194,7 @@ class ReceiptDAO {
         const receipts = await (DBUtils.getKnex(this.knex, "receipts")
             .select("*")
             .where({
-                status: ReceiptStatus.WAITING,
-                kkt_provider: "umka_new"
+                status: ReceiptStatus.WAITING
             })
             .andWhere("created_at", "<", date)
             .orderBy("id", "asc")

@@ -2,7 +2,9 @@ const FiscalRequest = require("../models/FiscalRequest")
 const FiscalRequestUmka = require("../models/FiscalRequestUmka")
 const FiscalRequestRekassa = require("../models/FiscalRequestRekassa")
 const FiscalRequestTelemedia = require("../models/FiscalRequestTelemedia")
+const FiscalRequestOrange = require("../models/FiscalRequestOrange")
 const UmkaAPI = require("../utils/UmkaAPI")
+const OrangeAPI = require("../utils/OrangeAPI")
 const RekassaAPI = require("../utils/RekassaAPI")
 const TelemediaAPI = require("../utils/TelemediaAPI")
 const UmkaNewAPI = require("../utils/UmkaNewAPI")
@@ -41,6 +43,7 @@ class FiscalizationWorker {
         this.cacheService = cacheService
         this.working = false
         this.intervalWork = false
+        this.checkBusy = false
 
         this.processReceipt = this.processReceipt.bind(this)
         this.start = this.start.bind(this)
@@ -140,6 +143,33 @@ class FiscalizationWorker {
                 logger.debug(`worker_process_receipt_umka_new_replied ${result.externalId}`)
 
                 await this.fiscalService.setWaitingStatusUmka(receipt)
+
+            }
+            if(receipt.kktProvider === "orange"){
+                fiscalRequest = new FiscalRequestOrange({
+                    external_id: extId,
+                    email,
+                    sno,
+                    inn,
+                    place,
+                    itemName,
+                    itemPrice,
+                    paymentType,
+                    timestamp: createdAt,
+                    itemType,
+                    controllerUid
+                })
+
+                result = await OrangeAPI.registerSale(kktRegNumber, fiscalRequest)
+                if(!result){
+                    await markFailed(this.receiptService, receipt, true)
+                    throw new Error("orange_data_reciept_error")
+                }else{
+
+                    logger.debug(`worker_process_receipt_orange_replied ${extId}`)
+
+                    await this.fiscalService.setWaitingStatusUmka(receipt)
+                }
 
             }
             if(receipt.kktProvider === "telemedia"){
@@ -332,16 +362,28 @@ class FiscalizationWorker {
 
         this.intervalId = setInterval(async () =>{
             try{
+                if(this.checkBusy) return
+
+                this.checkBusy = true
 
                 const rs = await this.receiptService.getAllWaiting()
                 if(!rs) {
                     return
                 }
-                await this.fiscalService.handleFiscalizationResultUmka(rs)
+                const umkaReceipts = rs.filter(item=>item.kktProvider === "umka_new")
+                const orangeReceipts = rs.filter(item=>item.kktProvider === "orange")
+
+                await Promise.all([
+                    await this.fiscalService.handleFiscalizationResultUmka(umkaReceipts),
+                    await this.fiscalService.handleFiscalizationResultOrange(orangeReceipts)
+                ])
 
 
             }catch (e) {
                 logger.info(`fiscal_super_error_setErrorToPending ${e.message}`)
+            }
+            finally {
+                this.checkBusy = false
             }
 
         }, 1000)

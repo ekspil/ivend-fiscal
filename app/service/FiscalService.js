@@ -3,6 +3,7 @@ const ReceiptStatus = require("../enums/ReceiptStatus")
 const UmkaAPI = require("../utils/UmkaAPI")
 const UmkaNewAPI = require("../utils/UmkaNewAPI")
 const RekassaAPI = require("../utils/RekassaAPI")
+const OrangeAPI = require("../utils/OrangeAPI")
 const DateUtils = require("../utils/DateUtils")
 const logger = require("my-custom-logger")
 
@@ -87,6 +88,7 @@ class FiscalService {
         return fiscalData
     }
     async handleFiscalizationResultUmka(receipts) {
+        if(receipts.length < 1) return
         const reports = await UmkaNewAPI.getReport(receipts)
 
         for (let receipt of receipts){
@@ -151,6 +153,83 @@ class FiscalService {
                     await this.receiptDAO.knex.transaction(async (trx) => {
 
                         const {id} = await this.fiscalDataDAO.findByExt(externalId, trx)
+
+                        await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
+
+                        await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
+                    })
+                }
+                catch (e) {
+                    logger.debug(`FISCAL_DB_SELECT_ERROR ${e.message} ${JSON.stringify(fiscalData)}`)
+                }
+
+            }
+
+        }
+
+    }
+    async handleFiscalizationResultOrange(receipts) {
+
+        for (let receipt of receipts){
+
+
+            const report = await OrangeAPI.getReport(receipt)
+            if(report.state === "waiting") continue
+            if(report.state !== "success"){
+                await this.receiptDAO.knex.transaction(async (trx) => {
+                    await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.ERROR, trx)
+                })
+                continue
+
+            }
+
+
+            const {fisc} = report
+
+
+
+            const fiscalData = new FiscalData({})
+
+            const total = fisc.content.positions.reduce((acc, item) => {
+                return acc = acc + (Number(item.price) * Number(item.quantity))
+            }, 0)
+
+            fiscalData.extId = fisc.id
+            fiscalData.totalAmount = total
+            fiscalData.fnsSite = fisc.fnsWebsite
+            fiscalData.fnNumber = fisc.fsNumber
+            fiscalData.shiftNumber = fisc.shiftNumber
+            fiscalData.receiptDatetime = new Date(fisc.processedAt)
+            fiscalData.fiscalReceiptNumber = fisc.documentIndex
+            fiscalData.fiscalDocumentNumber = fisc.documentNumber
+            fiscalData.ecrRegistrationNumber = fisc.deviceRN
+            fiscalData.fiscalDocumentAttribute = fisc.fp
+            fiscalData.extTimestamp = new Date(fisc.processedAt)
+            fiscalData.createdAt = new Date()
+
+            let operation = false
+
+            try {
+                await this.receiptDAO.knex.transaction(async (trx) => {
+
+                    const {id} = await this.fiscalDataDAO.create(fiscalData, trx)
+
+                    await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
+
+                    await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
+                    operation = true
+                })
+            }
+            catch (e) {
+                logger.debug(`FISCAL_DB_INSERT_ERROR ${e.message} ${JSON.stringify(fiscalData)}`)
+            }
+
+            if(!operation){
+
+                try {
+                    await this.receiptDAO.knex.transaction(async (trx) => {
+
+                        const {id} = await this.fiscalDataDAO.findByExt(fisc.id, trx)
 
                         await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
 
