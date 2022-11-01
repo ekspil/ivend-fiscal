@@ -180,3 +180,7 @@
 # 1.0.47 - RELEASE
 
 * add OrangeData integration
+
+# 1.0.48 - Hotfix
+
+* delete email from umka
