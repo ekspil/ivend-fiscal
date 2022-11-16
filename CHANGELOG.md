@@ -184,3 +184,7 @@
 # 1.0.48 - Hotfix
 
 * delete email from umka
+
+# 1.0.49 - Hotfix
+
+* hotfix

@@ -42,9 +42,9 @@ class FiscalService {
         fiscalData.shiftNumber = shift_number
         fiscalData.receiptDatetime = DateUtils.getDateFromStr(receipt_datetime),
         fiscalData.fiscalReceiptNumber = fiscal_receipt_number
-        fiscalData.fiscalDocumentNumber = fiscal_document_number
+        fiscalData.fiscalDocumentNumber = fiscal_document_number || 1
         fiscalData.ecrRegistrationNumber = ecr_registration_number
-        fiscalData.fiscalDocumentAttribute = fiscal_document_attribute
+        fiscalData.fiscalDocumentAttribute = fiscal_document_attribute || 1
         fiscalData.extTimestamp = new Date(timestamp)
         fiscalData.createdAt = new Date()
 
