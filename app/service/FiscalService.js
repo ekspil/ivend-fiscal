@@ -124,9 +124,9 @@ class FiscalService {
             fiscalData.shiftNumber = shiftNumber
             fiscalData.receiptDatetime = new Date(receiptDatetime),
             fiscalData.fiscalReceiptNumber = fiscalReceiptNumber
-            fiscalData.fiscalDocumentNumber = fiscalDocumentNumber
+            fiscalData.fiscalDocumentNumber = fiscalDocumentNumber || 1
             fiscalData.ecrRegistrationNumber = ecrRegistrationNumber
-            fiscalData.fiscalDocumentAttribute = fiscalDocumentAttribute
+            fiscalData.fiscalDocumentAttribute = fiscalDocumentAttribute || 1
             fiscalData.extTimestamp = new Date(receiptDatetime)
             fiscalData.createdAt = new Date()
 
@@ -201,9 +201,9 @@ class FiscalService {
             fiscalData.shiftNumber = fisc.shiftNumber
             fiscalData.receiptDatetime = new Date(fisc.processedAt)
             fiscalData.fiscalReceiptNumber = fisc.documentIndex
-            fiscalData.fiscalDocumentNumber = fisc.documentNumber
+            fiscalData.fiscalDocumentNumber = fisc.documentNumber || 1
             fiscalData.ecrRegistrationNumber = fisc.deviceRN
-            fiscalData.fiscalDocumentAttribute = fisc.fp
+            fiscalData.fiscalDocumentAttribute = fisc.fp || 1
             fiscalData.extTimestamp = new Date(fisc.processedAt)
             fiscalData.createdAt = new Date()
 
@@ -281,9 +281,9 @@ class FiscalService {
         fiscalData.shiftNumber = shift_number
         fiscalData.receiptDatetime = new Date(receipt_datetime),
         fiscalData.fiscalReceiptNumber = fiscal_receipt_number
-        fiscalData.fiscalDocumentNumber = fiscal_document_number
+        fiscalData.fiscalDocumentNumber = fiscal_document_number || 1
         fiscalData.ecrRegistrationNumber = ecr_registration_number
-        fiscalData.fiscalDocumentAttribute = fiscal_document_attribute
+        fiscalData.fiscalDocumentAttribute = fiscal_document_attribute || 1
         fiscalData.extTimestamp = new Date(timestamp)
         fiscalData.createdAt = new Date()
 
@@ -316,9 +316,9 @@ class FiscalService {
         fiscalData.shiftNumber = shift
         fiscalData.receiptDatetime = new Date(timestamp)
         fiscalData.fiscalReceiptNumber = uuid
-        fiscalData.fiscalDocumentNumber = check_number
+        fiscalData.fiscalDocumentNumber = check_number || 1
         fiscalData.ecrRegistrationNumber = link
-        fiscalData.fiscalDocumentAttribute = check_type
+        fiscalData.fiscalDocumentAttribute = check_type || 1
         fiscalData.extTimestamp = new Date(timestamp)
         fiscalData.createdAt = new Date()
 
