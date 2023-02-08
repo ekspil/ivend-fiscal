@@ -30,7 +30,7 @@ const FiscalRequest = function ({external_id, sno, inn,  itemName, itemPrice, pa
                 {
                     quantity: 1,
                     price: itemPrice,
-                    tax: 1,
+                    tax: sno === "osn" ? 1 : 6,
                     text: itemName,
                     paymentMethodType: 4,
                     paymentSubjectType: itemTypeMap[itemType]

@@ -192,3 +192,7 @@
 # 1.0.50 - Hotfix
 
 * hotfix
+
+# 1.0.51 - Hotfix
+
+* fix nds
