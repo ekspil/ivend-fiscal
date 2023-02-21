@@ -196,3 +196,7 @@
 # 1.0.51 - Hotfix
 
 * fix nds
+
+# 1.0.52 - Hotfix
+
+* fix timezone for old umka api

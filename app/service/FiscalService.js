@@ -21,6 +21,7 @@ class FiscalService {
         this.handleFiscalizationResult = this.handleFiscalizationResult.bind(this)
         this.handleFiscalizationResultRekassa = this.handleFiscalizationResultRekassa.bind(this)
         this.handleFiscalizationResultTelemedia = this.handleFiscalizationResultTelemedia.bind(this)
+        this.handleFiscalizationResultUmka = this.handleFiscalizationResultUmka.bind(this)
     }
 
     async handleFiscalizationResult(receipt, uuid) {
