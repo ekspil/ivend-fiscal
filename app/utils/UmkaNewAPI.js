@@ -99,7 +99,7 @@ class UmkaAPI {
         switch (response.status) {
             case 200: {
                 const json = await response.json()
-                logger.debug(`debug_fiscal_json ${json.results}`)
+                logger.debug(`debug_fiscal_json ${JSON.stringify(json.results)}`)
                 return json.results
             }
             default: {
