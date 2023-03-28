@@ -197,7 +197,7 @@ class ReceiptDAO {
                 status: ReceiptStatus.WAITING
             })
             .andWhere("created_at", "<", date)
-            .orderBy("id", "asc")
+            .orderBy("id", "desc")
             .limit(100))
 
 

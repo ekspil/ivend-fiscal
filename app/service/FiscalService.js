@@ -170,12 +170,10 @@ class FiscalService {
     }
     async handleFiscalizationResultOrange(receipts) {
 
-        logger.debug("debug_fiscal_orange_enter_receipts")
         for (let receipt of receipts){
 
 
             const report = await OrangeAPI.getReport(receipt)
-            logger.debug(`debug_fiscal_orange_receipt_${receipt.id}_${report.state}`)
             if(report.state === "waiting") continue
             if(report.state !== "success"){
                 await this.receiptDAO.knex.transaction(async (trx) => {
