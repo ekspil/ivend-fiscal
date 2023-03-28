@@ -366,7 +366,12 @@ class FiscalizationWorker {
 
                 this.checkBusy = true
 
+                const date = (new Date()).getTime()
+                logger.debug("debug_fiscal_1 " + ((new Date()).getTime() - date))
+
                 const rs = await this.receiptService.getAllWaiting()
+
+                logger.debug("debug_fiscal_2 " + ((new Date()).getTime() - date))
                 if(!rs) {
                     return
                 }
@@ -377,6 +382,8 @@ class FiscalizationWorker {
                     await this.fiscalService.handleFiscalizationResultUmka(umkaReceipts),
                     await this.fiscalService.handleFiscalizationResultOrange(orangeReceipts)
                 ])
+
+                logger.debug("debug_fiscal_3 " + ((new Date()).getTime() - date))
 
 
             }catch (e) {
