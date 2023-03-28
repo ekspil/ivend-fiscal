@@ -366,24 +366,25 @@ class FiscalizationWorker {
 
                 this.checkBusy = true
 
-                const date = (new Date()).getTime()
-                logger.debug("debug_fiscal_1 " + ((new Date()).getTime() - date))
 
                 const rs = await this.receiptService.getAllWaiting()
 
-                logger.debug("debug_fiscal_2 " + ((new Date()).getTime() - date))
+                logger.debug("debug_fiscal_rs_count " + rs.length)
                 if(!rs) {
                     return
                 }
                 const umkaReceipts = rs.filter(item=>item.kktProvider === "umka_new")
                 const orangeReceipts = rs.filter(item=>item.kktProvider === "orange")
 
+                logger.debug("debug_fiscal_umkaReceipts_count " + umkaReceipts.length)
+
+                logger.debug("debug_fiscal_orangeReceipts_count " + orangeReceipts.length)
+
                 await Promise.all([
                     await this.fiscalService.handleFiscalizationResultUmka(umkaReceipts),
                     await this.fiscalService.handleFiscalizationResultOrange(orangeReceipts)
                 ])
 
-                logger.debug("debug_fiscal_3 " + ((new Date()).getTime() - date))
 
 
             }catch (e) {
