@@ -90,10 +90,8 @@ class FiscalService {
     }
     async handleFiscalizationResultUmka(receipts) {
         if(receipts.length < 1) return
-        logger.debug("debug_fiscal_umka_enter_receipts")
         const reports = await UmkaNewAPI.getReport(receipts)
 
-        logger.debug("debug_fiscal_umka_get_report")
         for (let receipt of receipts){
             const {id, controllerUid} = receipt
 
@@ -101,7 +99,6 @@ class FiscalService {
             const externalId = `IVEND-receipt-${id}-${controllerUid}`
 
             const report = reports.find(it => it.externalId === externalId)
-            logger.debug("debug_fiscal_umka_receipt_"+receipt.id+" " + report.state )
             if(!report) continue
             if(report.state === "waiting") continue
             if(report.state !== "success"){
@@ -139,13 +136,11 @@ class FiscalService {
 
             try {
                 await this.receiptDAO.knex.transaction(async (trx) => {
-                    logger.debug("debug_fiscal_umka_set_SUCCESS_1")
                     const {id} = await this.fiscalDataDAO.create(fiscalData, trx)
 
                     await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
 
                     await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
-                    logger.debug("debug_fiscal_umka_set_SUCCESS_2")
                     operation = true
                 })
             }
@@ -157,13 +152,11 @@ class FiscalService {
 
                 try {
                     await this.receiptDAO.knex.transaction(async (trx) => {
-                        logger.debug("debug_fiscal_umka_set_SUCCESS_3")
                         const {id} = await this.fiscalDataDAO.findByExt(externalId, trx)
 
                         await this.receiptDAO.setFiscalDataId(receipt.id, id, trx)
 
                         await this.receiptDAO.setStatus(receipt.id, ReceiptStatus.SUCCESS, trx)
-                        logger.debug("debug_fiscal_umka_set_SUCCESS_4")
                     })
                 }
                 catch (e) {
@@ -177,10 +170,12 @@ class FiscalService {
     }
     async handleFiscalizationResultOrange(receipts) {
 
+        logger.debug("debug_fiscal_orange_enter_receipts")
         for (let receipt of receipts){
 
 
             const report = await OrangeAPI.getReport(receipt)
+            logger.debug(`debug_fiscal_orange_receipt_${receipt.id}_${report.state}`)
             if(report.state === "waiting") continue
             if(report.state !== "success"){
                 await this.receiptDAO.knex.transaction(async (trx) => {
