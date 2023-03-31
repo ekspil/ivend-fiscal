@@ -289,7 +289,7 @@ class FiscalizationWorker {
                     await this.cacheService.set(controllerKktStatusPrefix + receipt.controllerUid, "ERROR")
                     return await markFailed(this.receiptService, receipt)
                 }
-                logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${JSON.stringify(e.json)}`)
+                logger.error(`error_receipt_unknown ${receipt.id}, code: ${e.code}, status: ${e.status}, e: ${e.message}`)
                 return "rekassa_error"
             }
 

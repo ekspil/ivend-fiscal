@@ -208,3 +208,7 @@
 # 1.0.59 - Hotfix
 
 * add error
+
+# 1.0.60 - Hotfix
+
+* add error
