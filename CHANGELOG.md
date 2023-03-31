@@ -204,3 +204,7 @@
 # 1.0.56 - Hotfix
 
 * fix all waiting in orange error
+
+# 1.0.59 - Hotfix
+
+* add error

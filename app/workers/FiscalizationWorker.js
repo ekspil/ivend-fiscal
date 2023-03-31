@@ -243,6 +243,10 @@ class FiscalizationWorker {
                     logger.error(`worker_process_receipt_error_wrong_PHM ${receipt.id}`)
                     return await markFailed(this.receiptService, receipt, true)
                 }
+                if(e.json.error.text.includes("error:168")){
+                    logger.error(`worker_process_receipt_error_not_fiscalized ${receipt.id}`)
+                    return await markFailed(this.receiptService, receipt, true)
+                }
                 if(e.json.error.text.includes("Время ожидания соединения истекло")){
                     logger.error(`worker_process_receipt_error_KKT_connection_error ${receipt.id}`)
                     return await markFailed(this.receiptService, receipt, false)
