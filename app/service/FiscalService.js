@@ -194,17 +194,20 @@ class FiscalService {
                 return acc = acc + (Number(item.price) * Number(item.quantity))
             }, 0)
 
+            const gotDate = new Date(fisc.processedAt)
+            gotDate.setUTCHours(gotDate.getUTCHours() - 3)
+
             fiscalData.extId = fisc.id
             fiscalData.totalAmount = total
             fiscalData.fnsSite = fisc.fnsWebsite
             fiscalData.fnNumber = fisc.fsNumber
             fiscalData.shiftNumber = fisc.shiftNumber
-            fiscalData.receiptDatetime = new Date(fisc.processedAt)
+            fiscalData.receiptDatetime = gotDate
             fiscalData.fiscalReceiptNumber = fisc.documentIndex
             fiscalData.fiscalDocumentNumber = fisc.documentNumber || 1
             fiscalData.ecrRegistrationNumber = fisc.deviceRN
             fiscalData.fiscalDocumentAttribute = fisc.fp || 1
-            fiscalData.extTimestamp = new Date(fisc.processedAt)
+            fiscalData.extTimestamp = gotDate
             fiscalData.createdAt = new Date()
 
             let operation = false
